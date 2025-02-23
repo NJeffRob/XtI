@@ -1,0 +1,10 @@
+{
+    "Lua.diagnostics.globals": [
+        "sh_defaults"
+    ],
+    "Lua.diagnostics.disable": [
+        "lowercase-global",
+        "param-type-mismatch",
+        "trailing-space"
+    ]
+}
