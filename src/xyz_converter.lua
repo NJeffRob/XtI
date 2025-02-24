@@ -1,5 +1,5 @@
--- function to turn xyz file into orca input for job
-function xyz_converter(calc_type, io_name, functional, basis_set, dispersion, ntasks, mem_per_cpu, charge, mult)
+-- functions to turn xyz files into relevant input files for electronic structure programs
+function xyz_converter_orca(calc_type, io_name, functional, basis_set, dispersion, ntasks, mem_per_cpu, charge, mult)
     -- Read and copy the xyz coordinates of the input
     operating_system = package.config:sub(1,1) -- this returns the path separator, which informs me of the OS
     if operating_system == "\\" then
