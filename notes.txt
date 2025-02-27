@@ -1,0 +1,4 @@
+- need to make classes for:
+    - xyz to input converter
+    - sh generator 
+    - output to xyz generator

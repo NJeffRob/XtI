@@ -4,8 +4,9 @@ files for a variety of quantum chemistry packages
 --]]
 
 -- require other files
-require "sh_maker"
-require "xyz_converter"
+require "sh_generator"
+require "xyz_to_input_converter"
+require "output_to_xyz_converter"
 require "help"
 
 -- ASCII character art for nice lil touch :)
@@ -19,7 +20,7 @@ ____  ___ __  .___
 Type help to get started.
 ]])
 
--- Tables to store all the important settings
+-- Tables to store all the important settings; need to add more program options
 program_options = {
     ORCA = false,
     Gaussian = false
