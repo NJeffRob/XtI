@@ -11,13 +11,20 @@ require "help"
 
 -- ASCII character art for nice lil touch :)
 print([[
-____  ___ __  .___ 
-\   \/  //  |_|   |
- \     /\   __\   |
- /     \ |  | |   |
-/___/\  \|__| |___|
-      \_/          
-Type help to get started.
+__/\\\_______/\\\________________/\\\\\\\\\\\_        
+ _\///\\\___/\\\/________________\/////\\\///__       
+  ___\///\\\\\\/________/\\\__________\/\\\_____      
+   _____\//\\\\_______/\\\\\\\\\\\_____\/\\\_____     
+    ______\/\\\\______\////\\\////______\/\\\_____    
+     ______/\\\\\\________\/\\\__________\/\\\_____   
+      ____/\\\////\\\______\/\\\_/\\______\/\\\_____  
+       __/\\\/___\///\\\____\//\\\\\____/\\\\\\\\\\\_ 
+        _\///_______\///______\/////____\///////////__
+
+- Easy to install 
+- Available on all major operating systems
+- Straightforward to add customizable user scripts
+- Compatible with many electronic structure programs
 ]])
 
 -- Tables to store all the important settings; need to add more program options
