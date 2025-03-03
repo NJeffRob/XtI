@@ -5,12 +5,13 @@ Usage:
 xti [options] [file ...]
 
 Options
--p, --program         Specify the electronic structure program for input, output or submission script.
--i, --input           Generate an input file from a .xyz coordinate file.
--o, --output          Generate a .xyz coordinate file from an output file.
--s, --sh              Generate a .sh submission script.
+-p                    Specify the electronic structure program for input, output or submission script.
+-i                    Generate an input file from a .xyz coordinate file.
+-o                    Generate a .xyz coordinate file from an output file.
+-s                    Generate a .sh submission script.
+-j                    Specify the type of calculation (optimization, frequency, etc.) The default is optimization.
 
--h, --help            Print this help message.
+-h                    Print this help message.
 
 Usage examples:
 1. Generate an ORCA input file (.inp) and submission script (.sh) from a .xyz coordinate file of water:
