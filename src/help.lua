@@ -26,7 +26,9 @@ output: water.xyz
 input: xti -ps fhiaims water
 output: water.sh
 
-    ]])
+4. Generate a Gaussian frequency calculation input (.gjf) and submission script (.sh) from a .xyz coordinate file of water:
+input: xti -psij gaussian freq water.xyz
+output: water.gjf, water.sh]])
 end
 
 help()

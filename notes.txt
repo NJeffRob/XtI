@@ -5,23 +5,26 @@
 
 The plan:
 1. main tool/options using C, i.e. all argument parsing and calling of functions 
-is WITHIN THIS PROGRAM
+is WITHIN main.c
 2. all functions/functionality using Lua embedded within C
 3. ???? hope it works I guess
 
+TO COMPILE:
+gcc -o main main.c -llua -lm
+change "main" to whatever (xti even), but those options are crucial (will not compile otherwise)
 
 Help file options (aim for these):
 Usage:
 xti [options] [file ...]
 
 Options
--p, --program         Specify the electronic structure program for input, output or submission script.
--i, --input           Generate an input file from a .xyz coordinate file.
--o, --output          Generate a .xyz coordinate file from an output file.
--s, --sh              Generate a .sh submission script.
+-p                    Specify the electronic structure program for input, output or submission script.
+-i                    Generate an input file from a .xyz coordinate file.
+-o                    Generate a .xyz coordinate file from an output file.
+-s                    Generate a .sh submission script.
 -j                    Specify the type of calculation (optimization, frequency, etc.) The default is optimization.
 
--h, --help            Print this help message.
+-h                    Print this help message.
 
 Usage examples:
 1. Generate an ORCA input file (.inp) and submission script (.sh) from a .xyz coordinate file of water:
@@ -35,3 +38,7 @@ output: water.xyz
 3. Generate a submission script (.sh) for FHI-AIMS for a file called water:
 input: xti -ps fhiaims water
 output: water.sh
+
+4. Generate a Gaussian frequency calculation input (.gjf) and submission script (.sh) from a .xyz coordinate file of water:
+input: xti -psij gaussian freq water.xyz
+output: water.gjf, water.sh
