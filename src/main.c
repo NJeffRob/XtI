@@ -54,7 +54,7 @@ int input_option_checking(const char * user_input) {
 
     /* below is the best I could come up with 
     KNOWN ISSUE: if the user double inputs an option, it is accepted, e.g. -pp */
-    const char *input_options = "^-[psioj]{1,6}";
+    const char *input_options = "^-[psioj]{1,5}";
 
     xti_input_options = regcomp(&regex, input_options, REG_EXTENDED|REG_NOSUB); 
 
@@ -72,6 +72,9 @@ int input_option_checking(const char * user_input) {
     }
 }
 
+int program_option_checking(const char * user_input) {
+
+}
 
 int main(int argc, char *argv[]) {
     char help[5] = "-h";

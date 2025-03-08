@@ -1,7 +1,13 @@
 -- modify these as is your wont
--- NOTE: do NOT add 'io_name' to this list of consts
-local user_mail <const> = "different"
-local account <const> = "different"
+-- NOTE: do NOT add 'io_name' or 'calc_type' to this list of consts
+local user_mail <const> = "your_email"
+local account <const> = "your_account"
+local ntasks <const> = "4"
+local nodes <const> = "1"
+local cpus_per_task <const> = "1"
+local mem <const> = "4"
+local mem_per_cpu <const> = "1"
+local time <const> = "01-00:00"
 
 --[[
 Main function that writes the bulk of the sh file; other functions append onto this.
@@ -33,8 +39,8 @@ function sh_generator (user_mail, account, ntasks, nodes, cpus_per_task, mem, me
     )
 end
 
-function orca_sh(io_name)
-    sh_generator(user_mail, account, "test", "test", "test", "test", "test", "test", "test", "test")
+function orca_sh(io_name, calc_type)
+    sh_generator(user_mail, account, ntasks, nodes, cpus_per_task, mem, mem_per_cpu, time, calc_type, io_name)
 
     local orca_sh = io.open(io_name .. ".sh", "a")
 
@@ -47,9 +53,37 @@ function orca_sh(io_name)
     print(".sh script generated successfully.")
 end
 
+function gaussian_sh(io_name)
+    sh_generator(user_mail, account, ntasks, nodes, cpus_per_task, mem, mem_per_cpu, time, calc_type, io_name)
+
+    local gaussian_sh = io.open(io_name .. ".sh", "a")
+
+    io.write(
+        "write stuff"
+    )
+
+    io.close(gaussian_sh)
+
+    print(".sh script generated successfully.")
+end
+
+function abinit_sh(io_name)
+    sh_generator(user_mail, account, ntasks, nodes, cpus_per_task, mem, mem_per_cpu, time, calc_type, io_name)
+
+    local abinit_sh = io.open(io_name .. ".sh", "a")
+
+    io.write(
+        "write stuff"
+    )
+
+    io.close(abinit_sh)
+
+    print(".sh script generated successfully.")
+end
+
 
 function template_sh(io_name)
-    sh_generator(user_mail, account, "test", "test", "test", "test", "test", "test", "test", "test")
+    sh_generator(user_mail, account, ntasks, nodes, cpus_per_task, mem, mem_per_cpu, time, calc_type, io_name)
 
     local template_sh = io.open(io_name .. ".sh", "a")
 
