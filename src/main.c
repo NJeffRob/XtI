@@ -74,7 +74,7 @@ int input_option_checking(const char * user_input) {
 
 
 int main(int argc, char *argv[]) {
-    char help[10] = "-h";
+    char help[5] = "-h";
 
     // if the user doesn't input anything
     if (argc < 2) {
@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
 
         // prints the help message from the lua file
         // NOTE: LUA FILE IS NOT COMPILED WITH THE REST OF THE PROGRAM
-        if (strcmp(argv[1],help) == 0) {
+        if (strcmp(argv[1],help) == SUCCESS) {
             if (luaL_dofile(L, "src/help.lua") == LUA_OK) {
                 lua_pop(L, lua_gettop(L));
             }
