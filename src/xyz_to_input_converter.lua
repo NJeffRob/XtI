@@ -1,144 +1,96 @@
 local functional <const> = "PBE0"
 local basis_set <const> = "def2-SVP"
+local sp_basis_set <const> = "def2-TZVPP"
 local dispersion <const> = "D3BJ"
 local ntasks <const> = "1"
 local mem_per_cpu <const> = "1"
 local charge <const> = "0"
 local mult <const> = "1"
 
---[[
-Want: function to extract the .xyz coordinates from the .xyz file
-then: append those coordinates to the appropriate input file
-]]
-
 -- function to extract the xyz coordinates from the .xyz file
 function xyz_extractor(io_name)
-    -- Read and copy the xyz coordinates of the input
-    operating_system = package.config:sub(1,1) -- this returns the path separator, which informs me of the OS
+    -- this returns the path separator, which lets me copy the .xyz file based on the OS
+    operating_system = package.config:sub(1,1) 
     if operating_system == "\\" then
         os.execute("copy " .. io_name .. ".xyz " .. io_name)
     elseif operating_system == "/" then
         os.execute("cp " .. io_name .. ".xyz " .. io_name)
     end
 
-    local xyz_file = assert(io.open(io_name, "r"))
-
-    xyz_file = io.input()
-
     local atomic_coordinates = {}
 
-    for line in io.lines() do
+    -- extract coordinates
+    local xyz_file = assert(io.open(io_name, "r"))
+
+    for line in xyz_file:lines() do
         table.insert(atomic_coordinates, line)
     end
 
-    remove_line_1 = table.remove(atomic_coordinates, 1)
-    remove_line_1 = table.remove(atomic_coordinates, 1)
+    local count = 1
+    while count < 3 do
+        table.remove(atomic_coordinates, 1)
+        count = count + 1
+    end
 
-    print(atomic_coordinates)
+    -- put coordinates into the new file
+    local output_coordinates = assert(io.open(io_name, "w"))
 
-    assert(io.open(io_name, "a"))
+    io.input(output_coordinates)
 
-    io.output(xyz_file)
+    io.output(output_coordinates)
 
     for _, line in ipairs(atomic_coordinates) do
-        xyz_file:write(line)
-        xyz_file:write("\n")
+        output_coordinates:write(line)
+        output_coordinates:write("\n")
     end
+
+    output_coordinates:close()
 end
 
+-- append the xyz coordinates to the appropriate input files
+function orca_input(io_name, calc_type, functional, basis_set, sp_basis_set, dispersion, ntasks, mem_per_cpu, charge, mult)
+    xyz_extractor(io_name)
 
--- functions to turn xyz files into relevant input files for electronic structure programs
-function xyz_to_input_file(calc_type, io_name, functional, basis_set, dispersion, ntasks, mem_per_cpu, charge, mult)
-    -- Read and copy the xyz coordinates of the input
-    operating_system = package.config:sub(1,1) -- this returns the path separator, which informs me of the OS
-    if operating_system == "\\" then
-        os.execute("copy " .. io_name .. ".xyz " .. io_name .. ".inp")
-    elseif operating_system == "/" then
-        os.execute("cp " .. io_name .. ".xyz " .. io_name .. ".inp")
-    end
+    local orca_inp_file = assert(io.open(io_name .. ".inp", "w"))
 
     if calc_type == "sp" then
-        calc_type = ""
-    end
-
-    -- Creates a .inp file using the above coordinates    
-    inp_file = io.open(io_name .. ".inp", "r")
-
-    atomic_coordinates = {}
-
-    io.input(inp_file)
-
-    for line in io.lines() do
-        table.insert(atomic_coordinates, line)
-    end
-
-    -- iterating over a table was weirdly hard? These two lines remove the top two lines the atomic coordinates
-    remove_line_1 = table.remove(atomic_coordinates, 1)
-    remove_line_1 = table.remove(atomic_coordinates, 1)
-
-    table.insert(atomic_coordinates, "*")
-
-    if calc_type == "" then
-        inp_file = io.open(io_name .. ".inp", "w")
-
-        io.output(inp_file)
-
-        io.write(
-            "# comment", "\n",
-            "! " .. functional .. " ".. basis_set .. " " .. dispersion .. " printbasis", "\n",
-            "", "\n",
-            "%pal", "\n",
-            "  nprocs " .. ntasks, "\n",
-            "end", "\n",
-            "", "\n",
-            "%maxcore " .. mem_per_cpu*750, "\n", -- 75% of memory
-            "", "\n",
-            "* xyz " .. charge .. " " .. mult,
-            "\n"
-            )
-
-        io.close(inp_file)
-
-        inp_file = io.open(io_name .. ".inp", "a")
-
-        for _, line in ipairs(atomic_coordinates) do
-            inp_file:write(line)
-            inp_file:write("\n")
-        end
-    
-        io.close(inp_file)
-
+        orca_inp_file:write(
+            "! " .. functional .. " ".. sp_basis_set .. " " .. dispersion .. " printbasis", "\n"
+        )
     else
-        inp_file = io.open(io_name .. ".inp", "w")
-
-        io.output(inp_file)
-
-        io.write(
-            "# comment", "\n",
-            "! " .. functional .. " ".. basis_set .. " " .. dispersion .. " printbasis", "\n",
-            "! " .. calc_type, "\n",
-            "", "\n",
-            "%pal", "\n",
-            "  nprocs " .. ntasks, "\n",
-            "end", "\n",
-            "", "\n",
-            "%maxcore " .. mem_per_cpu*750, "\n", -- 75% of memory
-            "", "\n",
-            "* xyz " .. charge .. " " .. mult,
-            "\n"
-            )
-        
-        io.close(inp_file)
-
-        inp_file = io.open(io_name .. ".inp", "a")
-
-        for _, line in ipairs(atomic_coordinates) do
-            inp_file:write(line)
-            inp_file:write("\n")
-        end
-
-        io.close(inp_file)
+        orca_inp_file:write(
+        "! " .. functional .. " ".. basis_set .. " " .. dispersion .. " printbasis", "\n",
+        "! " .. calc_type, "\n"
+        )
     end
-end
 
-xyz_extractor("water")
+    orca_inp_file:close()
+    
+    local coordinates = assert(io.open(io_name, "r"))
+    local orca_inp_file = assert(io.open(io_name .. ".inp", "a"))
+
+    orca_inp_file:write(
+        "", "\n",
+        "%pal", "\n",
+        "  nprocs " .. ntasks, "\n",
+        "end", "\n",
+        "", "\n",
+        "%maxcore " .. mem_per_cpu*750, "\n", -- 75% of memory
+        "", "\n",
+        "* xyz " .. charge .. " " .. mult,
+        "\n"
+    )
+
+    for line in coordinates:lines() do
+        orca_inp_file:write(line .. "\n")
+    end
+
+    orca_inp_file:write("*")
+
+    orca_inp_file:close()
+    coordinates:close()
+
+    os.remove(io_name) -- get rid of the temp coordinates
+
+    print("ORCA input file generated successfully.")
+end

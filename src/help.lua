@@ -9,7 +9,7 @@ Options
 -i                    Generate an input file from a .xyz coordinate file.
 -o                    Generate a .xyz coordinate file from an output file.
 -s                    Generate a .sh submission script.
--j                    Specify the type of calculation (optimization, frequency, etc.) The default is optimization.
+-j                    Specify the type of calculation (optimization, frequency, etc.) The default is single point.
 
 -h                    Print this help message.
 
