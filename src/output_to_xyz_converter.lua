@@ -1,6 +1,6 @@
 -- currently this is specific to ORCA
 
-local orca_opt_output_file = assert(io.open("Ar-B-diOH-ORCA.out", "r"))
+local orca_opt_output_file = assert(io.open("Ar-B-diOH-sp-ORCA.out", "r"))
 
 local found = false
 
@@ -21,6 +21,7 @@ end
 
 orca_opt_output_file:close()
 
+-- read the coordinates table backwards to get the final geometry
 for i = #initial_coords, 1, -1 do
     table.insert(cleanup_coords, initial_coords[i])
 end
@@ -36,17 +37,32 @@ for k, _ in ipairs(cleanup_coords) do
     end
 end
 
---[[
-for _, v in ipairs(xyz_coords) do
-    print(v)
-end
---]]
+local number_of_atoms = 0
 
--- all of the above works (for ORCA)!!
+for k, v in ipairs(xyz_coords) do
+    number_of_atoms = k
+end
 
 -- add table coordinates to new xyz file
-local xyz_from_ouput = io.input()
+local xyz_from_ouput = assert(io.open("grr" .. ".xyz", "w"))
 
+xyz_from_ouput:write(
+    number_of_atoms, "\n",
+    "XYZ file generated from XtI", "\n"
+)
+
+xyz_from_ouput:close()
+
+local xyz_from_ouput = assert(io.open("grr" .. ".xyz", "a"))
+
+for _, v in ipairs(xyz_coords) do
+    xyz_from_ouput:write(v .. "\n")
+end
+
+xyz_from_ouput:close()
+
+-- this all works for ORCA opts!
+-- does NOT work for freq/sp! What is happening!!!
 
 --[[
 open output file
