@@ -53,7 +53,7 @@ function orca_sh(io_name, calc_type)
     print(".sh script generated successfully.")
 end
 
-function gaussian_sh(io_name)
+function gaussian_sh(io_name, calc_type)
     sh_generator(user_mail, account, ntasks, nodes, cpus_per_task, mem, mem_per_cpu, time, calc_type, io_name)
 
     local gaussian_sh = io.open(io_name .. ".sh", "a")
@@ -67,7 +67,7 @@ function gaussian_sh(io_name)
     print(".sh script generated successfully.")
 end
 
-function abinit_sh(io_name)
+function abinit_sh(io_name, calc_type)
     sh_generator(user_mail, account, ntasks, nodes, cpus_per_task, mem, mem_per_cpu, time, calc_type, io_name)
 
     local abinit_sh = io.open(io_name .. ".sh", "a")
@@ -82,7 +82,7 @@ function abinit_sh(io_name)
 end
 
 
-function template_sh(io_name)
+function template_sh(io_name, calc_type)
     sh_generator(user_mail, account, ntasks, nodes, cpus_per_task, mem, mem_per_cpu, time, calc_type, io_name)
 
     local template_sh = io.open(io_name .. ".sh", "a")
