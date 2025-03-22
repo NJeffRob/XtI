@@ -13,7 +13,7 @@ local time <const> = "01-00:00"
 Main function that writes the bulk of the sh file; other functions append onto this.
 To make your own functions, a template has been provided at the bottom.
 ]]
-function sh_generator (user_mail, account, ntasks, nodes, cpus_per_task, mem, mem_per_cpu, time, calc_type, io_name)
+local function sh_generator (user_mail, account, ntasks, nodes, cpus_per_task, mem, mem_per_cpu, time, calc_type, io_name)
     local sh = io.open(io_name .. ".sh", "w")
 
     io.output(sh)

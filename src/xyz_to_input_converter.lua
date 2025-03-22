@@ -8,7 +8,7 @@ local charge <const> = "0"
 local mult <const> = "1"
 
 -- function to extract the xyz coordinates from the .xyz file
-function xyz_extractor(io_name)
+local function xyz_extractor(io_name)
     -- this returns the path separator, which lets me copy the .xyz file based on the OS
     operating_system = package.config:sub(1,1) 
     if operating_system == "\\" then
