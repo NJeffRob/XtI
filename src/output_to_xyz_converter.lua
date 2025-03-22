@@ -1,6 +1,6 @@
 -- currently this is specific to ORCA
 
-function orca_output(io_name, calc_type)
+function orca_to_xyz(io_name, calc_type)
     local orca_opt_output_file = assert(io.open(io_name, "r"))
 
     local found = false
@@ -69,4 +69,12 @@ function orca_output(io_name, calc_type)
     xyz_from_ouput:close()
 
     print("XYZ coordinate file generated successfully.")
+end
+
+function guassian_to_xyz()
+
+end
+
+function abinit_to_xyz()
+    
 end

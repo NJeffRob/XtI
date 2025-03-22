@@ -12,31 +12,15 @@
 // the following structs are for program and job options
 struct Programs {
     char abinit[7];
-    char atomicrex[10];
-    char atompaw[8];
-    char beef[5];
-    char cantera[8];
-    char cfour[6];
-    char CheMP2[7];
-    char coordgenlibs[13];
-    char cp2k[5];
-    char cpmd[5];
-    char crest[6];
-    char ctffind[8];
-    char dalton[7];
     char gamess[7];
-    char gromacs[8];
-    char nwchem[7];
-    char molcas[7];
-    char plumed[7];
-    char psi4[5];
-    char quantumespresso[16];
-    char rosetta[8];
-    char xtb[4];
+    char qe[3]; // quantum espresso
     char orca[5];
     char gaussian[9];
     char fhiaims[8];
     char qchem[6];
+    char siesta[7];
+    char vasp[5];
+    char castep[7];
 };
 
 struct Job_types {
@@ -52,9 +36,8 @@ int input_option_checking(const char * user_input) {
 
     int xti_input_options;
 
-    /* below is the best I could come up with 
-    KNOWN ISSUE: if the user double inputs an option, it is accepted, e.g. -pp */
-    const char *input_options = "^-[psioj]{1,5}";
+    // regex that Lawrence came up with that works <3
+    const char *input_options = "^-(?!.*(.).*\1)[psioj]+(?: (?!.*(.).*\1)[psioj]+)*$";
 
     xti_input_options = regcomp(&regex, input_options, REG_EXTENDED|REG_NOSUB); 
 

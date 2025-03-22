@@ -48,7 +48,7 @@ local function xyz_extractor(io_name)
 end
 
 -- append the xyz coordinates to the appropriate input files
-function orca_input(io_name, calc_type, functional, basis_set, sp_basis_set, dispersion, ntasks, mem_per_cpu, charge, mult)
+function xyz_to_orca(io_name, calc_type, functional, basis_set, sp_basis_set, dispersion, ntasks, mem_per_cpu, charge, mult)
     xyz_extractor(io_name)
 
     local orca_inp_file = assert(io.open(io_name .. ".inp", "w"))
