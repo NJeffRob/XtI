@@ -32,6 +32,6 @@ The default parameters are as follows:
 
 These defaults were chosen with molecular geometries in mind (sorry materials folks). You can of course specify custom inputs instead should you need something more specific, or modify the defaults as you wish. **Note that for both the default and the custom version, the user will have to specify their DRAC account.**
 
-Custom parameters are anything the user specicies. **If your input contains gibberish, the output will be gibberish. There are no checks that the user has input something sensible. Always double check your inputs.**
+Custom parameters are anything the user specifies. **If your input contains gibberish, the output will be gibberish. There are no checks that the user has input something sensible. Always double check your inputs.**
 
 Whether the user selects custom (c) or default (d), the script will output two files: a submission shell script for the [Digital Research Alliance of Canada](https://docs.alliancecan.ca/wiki/Technical_documentation), and a .inp file that contains relevant ORCA code. It is encouraged that you double check that these files are both correct before you submit further jobs.
