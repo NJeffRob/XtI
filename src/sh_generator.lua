@@ -1,4 +1,4 @@
--- modify these as is your wont
+-- modify these as you wish
 -- NOTE: do NOT add 'io_name' or 'calc_type' to this list of consts
 local user_mail <const> = "your_email"
 local account <const> = "your_account"
@@ -12,9 +12,15 @@ local time <const> = "01-00:00"
 --[[
 Main function that writes the bulk of the sh file; other functions append onto this.
 To make your own functions, a template has been provided at the bottom.
+Note that the provided templates are structured for DRAC clusters, but can be easily modified.
+]]
+
+--[[ 
+Is string interpolation better here? Or worse?
+Come back to this once you've figured out more of the C code
 ]]
 local function sh_generator (user_mail, account, ntasks, nodes, cpus_per_task, mem, mem_per_cpu, time, calc_type, io_name)
-    local sh = io.open(io_name .. ".sh", "w")
+    local sh = io.open(io_name .. "-" .. calc_type .. ".sh", "w")
 
     io.output(sh)
 
@@ -34,18 +40,21 @@ local function sh_generator (user_mail, account, ntasks, nodes, cpus_per_task, m
         "#SBATCH --time=" .. time, "\n",
         "", "\n",
         "module purge", "\n" --,
-       -- "module load " .. program, "\n", -- specific to a program
-       -- program .. " " .. io_name .. ".in > " .. io_name .. ".out" -- specific to a program
+       -- "module load " .. program, "\n", specific to a program
+       -- program .. " " .. io_name .. ".in > " .. io_name .. ".out" specific to a program
     )
 end
 
+-- ORCA: works!
 function orca_sh(io_name, calc_type)
     sh_generator(user_mail, account, ntasks, nodes, cpus_per_task, mem, mem_per_cpu, time, calc_type, io_name)
 
-    local orca_sh = io.open(io_name .. ".sh", "a")
+    local orca_sh = io.open(io_name .. "-" .. calc_type .. ".sh", "a")
 
     io.write(
-        "orca stuff"
+        "module load StdEnv/2023 gcc/12.3 openmpi/4.1.5", "\n",
+        "module load 6.0.1", "\n",
+        "$EBROOTORCA/orca " .. io_name .. "-" .. calc_type .. ".inp" .. " > " .. io_name .. "-" .. calc_type .. ".out", "\n"
     )
 
     io.close(orca_sh)
@@ -53,13 +62,15 @@ function orca_sh(io_name, calc_type)
     print(".sh script generated successfully.")
 end
 
+-- Gaussian: works!
 function gaussian_sh(io_name, calc_type)
     sh_generator(user_mail, account, ntasks, nodes, cpus_per_task, mem, mem_per_cpu, time, calc_type, io_name)
 
-    local gaussian_sh = io.open(io_name .. ".sh", "a")
+    local gaussian_sh = io.open(io_name .. "-" .. calc_type .. ".sh", "a")
 
     io.write(
-        "write stuff"
+        "module load gaussian/g16.c01", "\n",
+        "G16 " .. io_name .. "-" .. calc_type .. ".gjf" .. " > " .. io_name .. "-" .. calc_type .. ".log"
     )
 
     io.close(gaussian_sh)
@@ -67,10 +78,11 @@ function gaussian_sh(io_name, calc_type)
     print(".sh script generated successfully.")
 end
 
+-- Abinit: in progress
 function abinit_sh(io_name, calc_type)
     sh_generator(user_mail, account, ntasks, nodes, cpus_per_task, mem, mem_per_cpu, time, calc_type, io_name)
 
-    local abinit_sh = io.open(io_name .. ".sh", "a")
+    local abinit_sh = io.open(io_name .. "-" .. calc_type .. ".sh", "a")
 
     io.write(
         "write stuff"
@@ -85,7 +97,7 @@ end
 function template_sh(io_name, calc_type)
     sh_generator(user_mail, account, ntasks, nodes, cpus_per_task, mem, mem_per_cpu, time, calc_type, io_name)
 
-    local template_sh = io.open(io_name .. ".sh", "a")
+    local template_sh = io.open(io_name .. "-" .. calc_type .. ".sh", "a")
 
     io.write(
         "write stuff"

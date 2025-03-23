@@ -71,6 +71,21 @@ int main(int argc, char *argv[]) {
         return FAILURE;
     }
     else{
+        /*LAWRENCE: here is the most complicated example input I can think of:
+        
+        xti -psij orca freq test.xyz
+
+        More broadly, this can be thought of as:
+
+        our_program -options chemistry_program job_option file.txt
+
+        there are a few things I'd like to know:
+        1) can the argument "chemistry_program" be stored and sent to Lua files?
+        2) can the argument "job_option" be stored and sent to Lua files?
+
+        If 1/2 are yes's, there might be an easier way for me to do some things in Lua.
+        */
+
         /* this else section has to initialize a Lua API call, i.e. all the following code
             has to be able to run lua
            if the user returns an appropriate input option, check the next input

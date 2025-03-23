@@ -1,5 +1,8 @@
--- currently this is specific to ORCA
+--[[
+Each output format is proprietary in some way; needs a separate function for each
+]]
 
+-- ORCA: works!
 function orca_to_xyz(io_name, calc_type)
     local orca_opt_output_file = assert(io.open(io_name, "r"))
 
@@ -71,10 +74,48 @@ function orca_to_xyz(io_name, calc_type)
     print("XYZ coordinate file generated successfully.")
 end
 
+-- abinit: in progress
+function abinit_to_xyz()
+    
+end
+
+-- gamess: in progress
+function gamess_to_xyz()
+    
+end
+
+-- qe: in progress
+function qe_to_xyz()
+    
+end
+
+-- fhiaims: in progress
+function fhiaims_to_xyz()
+    
+end
+
+-- qchem: in progress
+function qchem_to_xyz()
+    
+end
+
+-- siesta: in progress
+function siesta_to_xyz()
+    
+end
+
+-- vasp: in progress
+function vasp_to_xyz()
+    
+end
+
+-- castep: in progress
+function castep_to_xyz()
+    
+end
+
+-- gaussian: in progress (piece of shit program)
 function guassian_to_xyz()
 
 end
 
-function abinit_to_xyz()
-    
-end
