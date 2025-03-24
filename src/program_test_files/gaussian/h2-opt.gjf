@@ -1,8 +1,0 @@
-%chk=h2-opt.chk
-#p b3lyp/def2svp EmpiricalDispersion=GD3BJ Opt  
-
-h2
-
-0 1
-H      0.0747474954    2.8030292988    0.0000000000
-H      0.5532500262    2.6544700350    0.3982027810

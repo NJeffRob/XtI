@@ -37,7 +37,7 @@ int input_option_checking(const char * user_input) {
     int xti_input_options;
 
     // regex that Lawrence came up with that works <3
-    const char *input_options = "^-(?!.*(.).*\1)[psioj]+(?: (?!.*(.).*\1)[psioj]+)*$";
+    const char *input_options = "^-(?!.*(.).*\1)[sioj]+(?: (?!.*(.).*\1)[sioj]+)*$";
 
     xti_input_options = regcomp(&regex, input_options, REG_EXTENDED|REG_NOSUB); 
 

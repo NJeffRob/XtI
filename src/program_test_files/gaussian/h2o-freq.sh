@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=h2
+#SBATCH --job-name=h2o
 #SBATCH --account=def-ipaci
 #SBATCH --output=%j-opt.log
 #SBATCH --error=%j-opt.err
@@ -9,4 +9,4 @@
 
 module purge
 module load gaussian/g16.c01
-g16 < h2-opt.gjf >& h2-opt.log
+g16 < h2o-freq.gjf >& h2o-freq.log

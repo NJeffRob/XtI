@@ -18,11 +18,11 @@ Usage:
 xti [options] [file ...]
 
 Options
--p                    Specify the electronic structure program for input, output or submission script.
 -i                    Generate an input file from a .xyz coordinate file.
 -o                    Generate a .xyz coordinate file from an output file.
 -s                    Generate a .sh submission script.
 -j                    Specify the type of calculation (optimization, frequency, etc.) The default is single point.
+-l                    Load a .txt file with computational settings (MAYBE)
 
 -h                    Print this help message.
 
