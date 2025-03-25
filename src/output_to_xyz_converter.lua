@@ -85,47 +85,47 @@ function orca_to_xyz(io_name, calc_type)
     print("XYZ coordinate file generated successfully.")
 end
 
--- abinit: in progress
-function abinit_to_xyz()
+-- abinit: in progress; going to be very tricky if not impossible. Figure it out later
+function abinit_to_xyz(io_name, calc_type)
     
 end
 
 -- gamess: in progress
-function gamess_to_xyz()
+function gamess_to_xyz(io_name, calc_type)
     
 end
 
 -- qe: in progress
-function qe_to_xyz()
+function qe_to_xyz(io_name, calc_type)
     
 end
 
 -- fhiaims: in progress
-function fhiaims_to_xyz()
+function fhiaims_to_xyz(io_name, calc_type)
     
 end
 
 -- qchem: in progress
-function qchem_to_xyz()
+function qchem_to_xyz(io_name, calc_type)
     
 end
 
 -- siesta: in progress
-function siesta_to_xyz()
+function siesta_to_xyz(io_name, calc_type)
     
 end
 
 -- vasp: in progress
-function vasp_to_xyz()
+function vasp_to_xyz(io_name, calc_type)
     
 end
 
 -- castep: in progress
-function castep_to_xyz()
+function castep_to_xyz(io_name, calc_type)
     
 end
 
--- gaussian: in progress (piece of shit program)
+-- gaussian: works!
 function guassian_to_xyz(io_name, calc_type)
     local gaussian_output_file = assert(io.open(io_name, "r"))
 
@@ -149,22 +149,31 @@ function guassian_to_xyz(io_name, calc_type)
     end
 
     gaussian_output_file:close()
-
-    --[[
+    
     -- read the coordinates table backwards to get the final geometry
     for i = #initial_coords, 1, -1 do
         table.insert(cleanup_coords, initial_coords[i])
     end
+    
+    table.remove(cleanup_coords, 1) -- gets rid of first line
 
-    table.remove(cleanup_coords, 1) -- gets rid of first blank line for following loop
+    for k,v in ipairs(cleanup_coords) do
+        -- simple string manipulation to get the coords in the correct format
+        local atomic_number = string.sub(v, 18, 18)
+        
+        -- convert atomic number to atomic symbol
+        for k,v in ipairs(periodic_table) do
+            if tostring(k) == atomic_number then
+                atomic_symbol = v -- has to be global var
+            end
+        end
 
-    for k, _ in ipairs(cleanup_coords) do
-        table.insert(xyz_coords, cleanup_coords[k])
-        if cleanup_coords[k] == "" then
-            table.remove(xyz_coords, k)
-            table.remove(xyz_coords, k-1)
-            break
-        elseif string.match(cleanup_coords[k], "%-%-") then
+        local gaussian_coords = string.sub(v, 35, 70)
+
+        local final_coords = atomic_symbol .. gaussian_coords
+
+        table.insert(xyz_coords, final_coords)
+        if string.match(cleanup_coords[k], "%-%-") then
             table.remove(xyz_coords, k)
             break
         end
@@ -198,16 +207,5 @@ function guassian_to_xyz(io_name, calc_type)
     xyz_from_ouput:close()
 
     print("XYZ coordinate file generated successfully.")   
-
-    ]]
 end
-
-guassian_to_xyz("h2o-opt.log", "opt")
-
---[[
-atomic coords (gaussian)
-O      0.000000    0.120234   -0.000000
-H      0.757025   -0.480936    0.000000
-H     -0.757025   -0.480936   -0.000000
-]]
 

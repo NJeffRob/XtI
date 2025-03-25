@@ -20,11 +20,9 @@ Is string interpolation better here? Or worse?
 Come back to this once you've figured out more of the C code
 ]]
 local function sh_generator (user_mail, account, ntasks, nodes, cpus_per_task, mem, mem_per_cpu, time, calc_type, io_name)
-    local sh = io.open(io_name .. "-" .. calc_type .. ".sh", "w")
+    local sh = assert(io.open(io_name .. "-" .. calc_type .. ".sh", "w"))
 
-    io.output(sh)
-
-    io.write(
+    sh:write(
         "#!/bin/bash", "\n",
         "#SBATCH --job-name=" .. io_name, "\n",
         "#SBATCH --account=" .. account, "\n",
@@ -43,13 +41,15 @@ local function sh_generator (user_mail, account, ntasks, nodes, cpus_per_task, m
        -- "module load " .. program, "\n", specific to a program
        -- program .. " " .. io_name .. ".in > " .. io_name .. ".out" specific to a program
     )
+
+    sh:close()
 end
 
 -- ORCA: works!
 function orca_sh(io_name, calc_type)
     sh_generator(user_mail, account, ntasks, nodes, cpus_per_task, mem, mem_per_cpu, time, calc_type, io_name)
 
-    local orca_sh = io.open(io_name .. "-" .. calc_type .. ".sh", "a")
+    local orca_sh_file = io.open(io_name .. "-" .. calc_type .. ".sh", "a")
 
     io.write(
         "module load StdEnv/2023 gcc/12.3 openmpi/4.1.5", "\n",
@@ -57,7 +57,7 @@ function orca_sh(io_name, calc_type)
         "$EBROOTORCA/orca " .. io_name .. "-" .. calc_type .. ".inp" .. " > " .. io_name .. "-" .. calc_type .. ".out", "\n"
     )
 
-    io.close(orca_sh)
+    io.close(orca_sh_file)
 
     print(".sh script generated successfully.")
 end
@@ -66,14 +66,14 @@ end
 function gaussian_sh(io_name, calc_type)
     sh_generator(user_mail, account, ntasks, nodes, cpus_per_task, mem, mem_per_cpu, time, calc_type, io_name)
 
-    local gaussian_sh = io.open(io_name .. "-" .. calc_type .. ".sh", "a")
+    local gaussian_sh_file = assert(io.open(io_name .. "-" .. calc_type .. ".sh", "a"))
 
-    io.write(
+    gaussian_sh_file:write(
         "module load gaussian/g16.c01", "\n",
-        "G16 " .. io_name .. "-" .. calc_type .. ".gjf" .. " > " .. io_name .. "-" .. calc_type .. ".log"
+        "g16 < " ..  io_name .. "-" .. calc_type .. ".gjf" .. " >& " .. io_name .. "-" .. calc_type .. ".log"
     )
 
-    io.close(gaussian_sh)
+    gaussian_sh_file:close()
 
     print(".sh script generated successfully.")
 end
@@ -107,3 +107,5 @@ function template_sh(io_name, calc_type)
 
     print(".sh script generated successfully.")
 end
+
+gaussian_sh("water", "opt")
