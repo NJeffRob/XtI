@@ -9,6 +9,9 @@ local mem <const> = "4"
 local mem_per_cpu <const> = "1"
 local time <const> = "01-00:00"
 
+-- fhi-aims
+local path <const> = "/path/to/fhi-aims"
+
 --[[
 Main function that writes the bulk of the sh file; other functions append onto this.
 To make your own functions, a template has been provided at the bottom.
@@ -49,15 +52,15 @@ end
 function orca_sh(io_name, calc_type)
     sh_generator(user_mail, account, ntasks, nodes, cpus_per_task, mem, mem_per_cpu, time, calc_type, io_name)
 
-    local orca_sh_file = io.open(io_name .. "-" .. calc_type .. ".sh", "a")
+    local orca_sh_file = assert(io.open(io_name .. "-" .. calc_type .. ".sh", "a"))
 
-    io.write(
+    orca_sh_file:write(
         "module load StdEnv/2023 gcc/12.3 openmpi/4.1.5", "\n",
         "module load 6.0.1", "\n",
         "$EBROOTORCA/orca " .. io_name .. "-" .. calc_type .. ".inp" .. " > " .. io_name .. "-" .. calc_type .. ".out", "\n"
     )
 
-    io.close(orca_sh_file)
+    orca_sh_file:close()
 
     print(".sh script generated successfully.")
 end
@@ -74,6 +77,30 @@ function gaussian_sh(io_name, calc_type)
     )
 
     gaussian_sh_file:close()
+
+    print(".sh script generated successfully.")
+end
+
+-- fhi-aims: works!
+function fhiaims_sh(io_name, calc_type)
+    sh_generator(user_mail, account, ntasks, nodes, cpus_per_task, mem, mem_per_cpu, time, calc_type, io_name)
+
+    local fhiaims_sh = assert(io.open(io_name .. "-" .. calc_type .. ".sh", "a"))
+
+    fhiaims_sh:write(
+        "module load StdEnv/2020", "\n",
+        "module load intel/2020.1.217 imkl/2020.1.217 intelmpi/2019.7.217", "\n",
+        "module load libxc/5.1.3", "\n",
+        "", "\n",
+        "export OMP_NUM_THREADS=1", "\n",
+        "export MKL_NUM_THREADS=1", "\n",
+        "export MKL_DYNAMIC=FALSE", "\n",
+        "ulimit -s unlimited", "\n",
+        "", "\n",
+        "mpirun " .. path ..  "</dev/null > " .. io_name .. "-" .. calc_type .. ".out"
+    )
+
+    fhiaims_sh:close()
 
     print(".sh script generated successfully.")
 end
@@ -107,5 +134,3 @@ function template_sh(io_name, calc_type)
 
     print(".sh script generated successfully.")
 end
-
-gaussian_sh("water", "opt")

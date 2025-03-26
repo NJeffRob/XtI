@@ -69,7 +69,7 @@ function orca_to_xyz(io_name, calc_type)
 
     xyz_from_ouput:write(
         number_of_atoms, "\n",
-        "XYZ file generated from XtI", "\n"
+        "XYZ file generated from XtI.", "\n"
     )
 
     xyz_from_ouput:close()
@@ -100,9 +100,70 @@ function qe_to_xyz(io_name, calc_type)
     
 end
 
--- fhiaims: in progress
+-- fhiaims: works!
 function fhiaims_to_xyz(io_name, calc_type)
-    
+    local fhiaims_output_file = assert(io.open(io_name, "r"))
+
+    local found = false
+
+    local initial_coords = {}
+    local xyz_coords = {}
+
+    -- MODIFY THE ORCA SCRIPT TO MATCH THIS - WAY CLEANER
+    for line in fhiaims_output_file:lines() do
+        if found then
+            if string.match(line, "%-%-") ~= nil then
+                found = false
+            else
+                table.insert(initial_coords, line)
+            end
+        elseif string.match(line, "Final atomic structure") ~= nil then
+            found = true 
+        end
+    end
+
+    fhiaims_output_file:close()
+
+    table.remove(initial_coords, 1) -- get rid of first line
+
+    for k,v in ipairs(initial_coords) do
+        local atom_symbol = string.sub(v, -1, -1)
+
+        local atom_coords = string.sub(v, 17, -2)
+
+        local final_xyz_file = atom_symbol .. atom_coords
+
+        table.insert(xyz_coords, final_xyz_file)
+    end
+
+    local number_of_atoms = 0
+
+    for k,_ in ipairs(xyz_coords) do
+        number_of_atoms = k
+    end
+
+    -- cleanup the io name to remove the original file extension
+    io_name = string.gsub(io_name, "[.][^%.]*$", "")
+
+    -- add table coordinates to new xyz file
+    local xyz_from_ouput = assert(io.open(io_name .. "-" .. calc_type .. ".xyz", "w"))
+
+    xyz_from_ouput:write(
+        number_of_atoms, "\n",
+        "XYZ file generated from XtI.", "\n"
+    )
+
+    xyz_from_ouput:close()
+
+    local xyz_from_ouput = assert(io.open(io_name .. "-" .. calc_type .. ".xyz", "a"))
+
+    for _, v in ipairs(xyz_coords) do
+        xyz_from_ouput:write(v .. "\n")
+    end
+
+    xyz_from_ouput:close()
+
+    print("XYZ coordinate file generated successfully.")  
 end
 
 -- qchem: in progress
@@ -193,7 +254,7 @@ function guassian_to_xyz(io_name, calc_type)
 
     xyz_from_ouput:write(
         number_of_atoms, "\n",
-        "XYZ file generated from XtI", "\n"
+        "XYZ file generated from XtI.", "\n"
     )
 
     xyz_from_ouput:close()
@@ -208,4 +269,6 @@ function guassian_to_xyz(io_name, calc_type)
 
     print("XYZ coordinate file generated successfully.")   
 end
+
+fhiaims_to_xyz("H2O.reference.out", "opt")
 
