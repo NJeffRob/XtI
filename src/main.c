@@ -36,6 +36,7 @@ void help_message(void);
 bool is_valid_option(char c);
 bool is_duplicate_option(char *str);
 void store_option(char option);
+void execute_lua(const char *script);
 
 int main(int argc, char *argv[]) {
 
@@ -50,12 +51,7 @@ int main(int argc, char *argv[]) {
   // prints the help message from the lua file
   // NOTE: LUA FILE IS NOT COMPILED WITH THE REST OF THE PROGRAM
   if (strcmp(argv[1], help) == SUCCESS) {
-    lua_State *L = luaL_newstate();
-    luaL_openlibs(L);
-    if (luaL_dofile(L, "src/help.lua") == LUA_OK) {
-      lua_pop(L, lua_gettop(L));
-    }
-    lua_close(L);
+    execute_lua("help.lua");
     return SUCCESS;
   }
   // First character of the argument is '-'
@@ -115,8 +111,8 @@ int main(int argc, char *argv[]) {
      appropriate input option, check the next input if the next input is
      appropriate for the input options listed, check the next input if the
      next input is a name of a file in the directory, do stuff */
-  lua_State *L = luaL_newstate();
-  luaL_openlibs(L);
+  //  lua_State *L = luaL_newstate();
+  //  luaL_openlibs(L);
 
   // prints the help message from the lua file
   // NOTE: LUA FILE IS NOT COMPILED WITH THE REST OF THE PROGRAM
@@ -138,7 +134,7 @@ int main(int argc, char *argv[]) {
       input_option_checking(argv[i]);
   }
   */
-  lua_close(L);
+  //  lua_close(L);
 
   return SUCCESS;
 }
@@ -184,6 +180,22 @@ void store_option(char option) {
   default:
     break;
   }
+}
+
+void execute_lua(const char *script) {
+  lua_State *L = luaL_newstate(); // Create new lua state
+  luaL_openlibs(L);               // Open lua libraries
+
+  if (luaL_dofile(L, script) != LUA_OK) {
+    fprintf(stderr, "Error running Lua script: %s\n", lua_tostring(L, -1));
+  }
+
+  // Do we need to clear the lua stack after all successful operations?
+  // if (luaL_dofile(L, "src/help.lua") == LUA_OK) {
+  //  lua_pop(L, lua_gettop(L));
+  //}
+
+  lua_close(L);
 }
 
 /*
