@@ -105,6 +105,23 @@ function fhiaims_sh(io_name, calc_type)
     print(".sh script generated successfully.")
 end
 
+-- gamess: works!
+function gamess_sh(io_name, calc_type)
+    sh_generator(user_mail, account, ntasks, nodes, cpus_per_task, mem, mem_per_cpu, time, calc_type, io_name)
+
+    local gamess_sh = assert(io.open(io_name .. "-" .. calc_type .. ".sh", "a"))
+
+    gamess_sh:write(
+        "module load gamess-us/20170420-R1", "\n",
+        "export SLURM_CPUS_PER_TASK", "\n",      
+        "rungms " .. io_name .. "-" .. calc_type .. ".inp" .. " &> " .. io_name .. "-" .. calc_type .. ".out"
+    )
+
+    gamess_sh:close()
+
+    print(".sh script generated successfully.")
+end
+
 -- Abinit: in progress
 function abinit_sh(io_name, calc_type)
     sh_generator(user_mail, account, ntasks, nodes, cpus_per_task, mem, mem_per_cpu, time, calc_type, io_name)
@@ -124,13 +141,13 @@ end
 function template_sh(io_name, calc_type)
     sh_generator(user_mail, account, ntasks, nodes, cpus_per_task, mem, mem_per_cpu, time, calc_type, io_name)
 
-    local template_sh = io.open(io_name .. "-" .. calc_type .. ".sh", "a")
+    local template_sh = assert(io.open(io_name .. "-" .. calc_type .. ".sh", "a"))
 
-    io.write(
+    template_sh:write(
         "write stuff"
     )
 
-    io.close(template_sh)
+    template_sh:close()
 
     print(".sh script generated successfully.")
 end

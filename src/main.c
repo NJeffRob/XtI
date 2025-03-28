@@ -40,7 +40,7 @@ void execute_lua(const char *script);
 
 int main(int argc, char *argv[]) {
 
-  char help[2] = "-h";
+  char help[3] = "-h";
 
   // if the user doesn't input anything
   // Add later: limit upper bound of argc as well
@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
   // prints the help message from the lua file
   // NOTE: LUA FILE IS NOT COMPILED WITH THE REST OF THE PROGRAM
   if (strcmp(argv[1], help) == SUCCESS) {
-    execute_lua("help.lua");
+    execute_lua("src/help.lua");
     return SUCCESS;
   }
   // First character of the argument is '-'
