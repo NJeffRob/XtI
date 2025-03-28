@@ -29,22 +29,18 @@ struct Job_types {
   char sp[30];
 };
 
-int input_option_checking(const char *user_input);
-int program_option_checking(const char *user_input);
+//int input_option_checking(const char *user_input);
+//int program_option_checking(const char *user_input);
+void help_message(void);
 
 int main(int argc, char *argv[]) {
-
-  // test
-  printf("%s\n", argv[1]);
-  // printf("%d", input_option_checking(argv[1]));
 
   char help[5] = "-h";
 
   // if the user doesn't input anything
+  // Add later: limit upper bound of argc as well
   if (argc < 2) {
-    printf("Usage: xti [options] [file ...] \n"
-           "Try 'xti -h' for help on getting started. \n");
-
+    help_message();
     return FAILURE;
   } else {
     //   char *inputOptions = argv[1];
@@ -82,11 +78,11 @@ int main(int argc, char *argv[]) {
       if (luaL_dofile(L, "src/help.lua") == LUA_OK) {
         lua_pop(L, lua_gettop(L));
       }
-    } else if (input_option_checking(argv[1]) == SUCCESS) {
-      printf("%s\n", argv[1]);
-    } else {
-      printf("Usage: xti [options] [file ...] \n"
-             "Try 'xti -h' for help on getting started. \n");
+    } //else if (input_option_checking(argv[1]) == SUCCESS) {
+      //printf("%s\n", argv[1]);
+    //} 
+    else {
+      help_message();
     }
     /*
     int i;
@@ -100,6 +96,11 @@ int main(int argc, char *argv[]) {
   }
 }
 
+void help_message(void) {
+  printf("Usage: xti [options] [file ...] \n"
+         "Try 'xti -h' for help on getting started. \n");
+}
+/*
 // Regex; need to make sure that the first argument is along the lines of
 // -p/s/i/o/j
 int input_option_checking(const char *user_input) {
@@ -130,3 +131,4 @@ int input_option_checking(const char *user_input) {
 }
 
 int program_option_checking(const char *user_input) {}
+*/
