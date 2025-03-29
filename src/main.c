@@ -9,7 +9,7 @@
 #define FAILURE 1
 
 // the following structs are for program and job options
-struct Programs {
+/*struct Programs {
   char abinit[7];
   char gamess[7];
   char qe[3]; // quantum espresso
@@ -20,36 +20,44 @@ struct Programs {
   char siesta[7];
   char vasp[5];
   char castep[7];
-};
+};*/
 
 const char *valid_program[] = {"abinit",   "gamess",  "qe",    "orca",
                                "gaussian", "fhiaims", "qchem", "siesta",
                                "vasp",     "castep"};
 
-struct Job_types {
+/*struct Job_types {
   char opt[30];
   char freq[30];
   char sp[30];
-};
+};*/
+
+const char *valid_job[] = {"opt", "freq", "sp"};
 
 void help_prompt(void);
+bool is_valid_length(const char *str, size_t min, size_t max);
 bool is_valid_option(char c);
 bool is_duplicate_option(const char *str);
 void option_to_lua(char option);
+bool match_str(const char *str, const char *static_array[], size_t array_size);
 void execute_lua(const char *script);
+void pass_argument_lua(const char *str, const char *global_var,
+                       const char *lua_path);
+
+// Rearrange all case handling to check for any failures with all of
+// option/program/job first, then perform the expected operations
 
 int main(int argc, char *argv[]) {
-  // option
+  // *option = argv[1]
+  const char *option = argv[1];
   char help[3] = "-h";
-  const char *option = argv[1]; // Store argv[1] in a variable
-  // Add later: limit upper bound of argc as well
-  if (argc < 2) {
+  if (argc < 2 || argc > 5) {
     help_prompt();
     return FAILURE;
   }
-  // prints the help message from the lua file
-  // NOTE: LUA FILE IS NOT COMPILED WITH THE REST OF THE PROGRAM
   if (strcmp(option, help) == SUCCESS) {
+    // Print the help message from the Lua file
+    // NOTE: LUA FILE IS NOT COMPILED WITH THE REST OF THE PROGRAM
     execute_lua("lua/help.lua");
     return SUCCESS;
   }
@@ -60,8 +68,8 @@ int main(int argc, char *argv[]) {
     return FAILURE;
   }
   // Argument is between 2 to 5 characters
-  else if (strlen(option) < 2 || strlen(option) > 5) {
-    printf("Invalid number of arguments provided: %lu\n", strlen(option));
+  else if (!is_valid_length(option, 2, 5)) {
+    printf("Invalid number of options\n");
     help_prompt();
     return FAILURE;
   }
@@ -79,27 +87,50 @@ int main(int argc, char *argv[]) {
     help_prompt();
     return FAILURE;
   }
+
   // Call lua API for valid options
   for (int i = 1; option[i] != '\0'; i++) {
     option_to_lua(option[i]);
   }
 
-  // chemistry_program = argv[2]
   // If valid, store and send chemistry_program to Lua
+  const char *chemistry_program = argv[2];
+  if (!is_valid_length(chemistry_program, 2, 9)) {
+    printf("Invalid program\n");
+    help_prompt();
+    return FAILURE;
+  }
+  // Check if string is in the static array
+  else if (!match_str(chemistry_program, valid_program,
+                      sizeof(valid_program))) {
+    printf("Invalid program\n");
+    help_prompt();
+    return FAILURE;
+  }
+  // Pass chemistry_program to Lua
+  else {
+    pass_argument_lua(chemistry_program, "chemistry_program",
+                      "../tests/pass_argument.lua");
+  }
 
-  // >2, <10
+  const char *job_type = argv[3];
+  if (!is_valid_length(job_type, 2, 4)) {
+    printf("Invalid job type\n");
+    help_prompt();
+    return FAILURE;
+  }
+  // Check if string is in the static array
+  else if (!match_str(job_type, valid_job, sizeof(valid_job))) {
+    printf("Invalid job type\n");
+    help_prompt();
+    return FAILURE;
+  }
+  // Pass job_type to Lua
+  else {
+    pass_argument_lua(job_type, "job_type", "../tests/pass_argument.lua");
+  }
 
-  // check if in the struct or whatever
-
-  // pass_argument to lua
-
-
-  // job_option = argv[3]
-  // if valid, pass argumetn to lua
-
-
-  // file = argv[4]
-
+  // *file = argv[4]
 
   // Check that chemistry_program matches a value in the struct, send to lua
   // Check that job_option matches a value in the struct, send to lua
@@ -120,14 +151,21 @@ int main(int argc, char *argv[]) {
   If 1/2 are yes's, there might be an easier way for me to do some things in
   Lua.
   */
-
- 
   return SUCCESS;
 }
 
 void help_prompt(void) {
-  printf("Usage: xti [options] [file ...] \n"
+  printf("Usage: xti -[options] [program] [job] [file...] \n"
          "Try 'xti -h' for help on getting started. \n");
+}
+
+bool is_valid_length(const char *str, size_t min, size_t max) {
+  // Prevent segmentation fault
+  if (str == NULL) {
+    return false;
+  }
+  size_t len = strlen(str);
+  return (len >= min && len <= max);
 }
 
 bool is_valid_option(char c) {
@@ -154,20 +192,30 @@ void option_to_lua(char option) {
   // Call Lua based on option
   switch (option) {
   case 's':
-    printf("Processing option 's'\n");
+    printf("Lua function 's'\n");
     break;
   case 'i':
-    printf("Processing option 'i'\n");
+    printf("Lua function 'i'\n");
     break;
   case 'o':
-    printf("Processing option 'o'\n");
+    printf("Lua function 'o'\n");
     break;
   case 'j':
-    printf("Processing option 'j'\n");
+    printf("Lua function 'j'\n");
     break;
   default:
     break;
   }
+}
+
+bool match_str(const char *str, const char *static_array[], size_t array_size) {
+  size_t num_valid_programs = array_size / sizeof(static_array[0]);
+  for (size_t i = 0; i < num_valid_programs; i++) {
+    if (strcmp(str, static_array[i]) == 0) {
+      return true;
+    }
+  }
+  return false; // If no match is found
 }
 
 void execute_lua(const char *script) {
@@ -178,10 +226,29 @@ void execute_lua(const char *script) {
     fprintf(stderr, "Error running Lua script: %s\n", lua_tostring(L, -1));
   }
 
-  // Do we need to clear the lua stack after all successful operations?
+  // Only need to clear lua stack if leaving lua state open
   // if (luaL_dofile(L, "src/help.lua") == LUA_OK) {
   //  lua_pop(L, lua_gettop(L));
   //}
+
+  lua_close(L);
+}
+
+void pass_argument_lua(const char *str, const char *global_var,
+                       const char *lua_path) {
+  lua_State *L = luaL_newstate();
+  luaL_openlibs(L);
+
+  lua_pushstring(L, str);
+  lua_setglobal(L, global_var);
+
+  // Execute the Lua script
+  const char *lua_script = lua_path;
+
+  if (luaL_dofile(L, lua_script) != LUA_OK) {
+    fprintf(stderr, "Error passing argument to Lua script: %s\n",
+            lua_tostring(L, -1));
+  }
 
   lua_close(L);
 }
