@@ -6,5 +6,6 @@
         "lowercase-global",
         "param-type-mismatch",
         "trailing-space"
-    ]
+    ],
+    "terminal.integrated.fontSize": 20
 }

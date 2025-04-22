@@ -92,15 +92,23 @@ end
 
 -- gamess: in progress
 function gamess_to_xyz(io_name, calc_type)
-
     --[[
+    Internuclear distances (Angs.)
+    H-O: 1.479 <- incorrect
+
+    Coordinates (Bohr)
+    H-O: 0.969 <- correct
+
+    Have to convert Bohr distances :/
+    --]]
+
+    ---[[
     local gamess_output_file = assert(io.open(io_name, "r"))
 
     local found = false
 
     local initial_coords = {}
     local cleanup_coords = {}
-    local xyz_coords = {}
 
     for line in gamess_output_file:lines() do
         if found then
@@ -108,7 +116,7 @@ function gamess_to_xyz(io_name, calc_type)
             if line == "" then
                 found = false
             end
-        elseif line == "CARTESIAN COORDINATES (ANGSTROEM)" then
+        elseif string.match(line, "COORDINATES %(BOHR%)") then
             found = true 
         end
     end
@@ -120,23 +128,18 @@ function gamess_to_xyz(io_name, calc_type)
         table.insert(cleanup_coords, initial_coords[i])
     end
 
-    table.remove(cleanup_coords, 1) -- gets rid of first blank line for following loop
+    table.remove(cleanup_coords, 1) -- gets rid of first blank line for the following loop
+    table.remove(cleanup_coords) -- removes last line for the following loop
 
-    for k, _ in ipairs(cleanup_coords) do
-        table.insert(xyz_coords, cleanup_coords[k])
-        if cleanup_coords[k] == "" then
-            table.remove(xyz_coords, k)
-            table.remove(xyz_coords, k-1)
-            break
-        elseif string.match(cleanup_coords[k], "%-%-") then
-            table.remove(xyz_coords, k)
-            break
-        end
-    end
+    --[[ need to: 
+        remove integers that are atomic coordinates;
+        convert remaining coordinates from Bohor to angstroms
+    --]]
+
 
     local number_of_atoms = 0
 
-    for k, _ in ipairs(xyz_coords) do
+    for k, _ in ipairs(cleanup_coords) do
         number_of_atoms = k
     end
 
@@ -155,7 +158,7 @@ function gamess_to_xyz(io_name, calc_type)
 
     local xyz_from_ouput = assert(io.open(io_name .. "-" .. calc_type .. ".xyz", "a"))
 
-    for _, v in ipairs(xyz_coords) do
+    for _, v in ipairs(cleanup_coords) do
         xyz_from_ouput:write(v .. "\n")
     end
 
@@ -340,4 +343,4 @@ function guassian_to_xyz(io_name, calc_type)
     print("XYZ coordinate file generated successfully.")   
 end
 
-gamess_to_xyz("", "")
+gamess_to_xyz("gamess-sp.out", "sp")
