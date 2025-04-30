@@ -1,11 +1,11 @@
-#include "lauxlib.h"
-#include "lua.h"
-#include "lualib.h"
 #include <errno.h>
-#include <stdbool.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+
+#include "../../include/file_handler.h"
+#include "../../include/lua_util.h"
+#include "../../include/option_handler.h"
+#include "../../include/util.h"
 
 #define SUCCESS 0
 #define FAILURE 1
@@ -35,17 +35,8 @@ const char *valid_program[] = {"abinit",   "gamess",  "qe",    "orca",
 };*/
 
 const char *valid_job[] = {"opt", "freq", "sp"};
-
 void help_prompt(void);
-bool is_valid_length(const char *str, size_t min, size_t max);
-bool is_valid_option(char c);
-bool is_duplicate_option(const char *str);
-void option_to_lua(char option);
-bool match_str(const char *str, const char *static_array[], size_t array_size);
-void execute_lua(const char *script);
-void pass_argument_lua(const char *str, const char *global_var,
-                       const char *lua_path);
-int file_xyz_extension(const char *file_name);
+
 
 // Rearrange all case handling to check for any failures with all of
 // option/program/job first, then perform the expected operations
@@ -138,6 +129,14 @@ int main(int argc, char *argv[]) {
   // file_handling
   const char *file_name = argv[4];
   FILE *file = fopen(file_name, "r");
+
+  // Check if .xyz file, then send to lua
+  if (!file_xyz_extension(file_name)) {
+    fprintf(stderr, "Error: The file \"%s\" does not have a .xyz extension.\n",
+            file_name);
+    return 1;
+  }
+
   // Check if file is valid and accessible
   if (file == NULL) {
     if (errno == ENOENT) {
@@ -151,18 +150,8 @@ int main(int argc, char *argv[]) {
   }
   fclose(file);
 
-  // Check if .xyz file, then send to lua
-  if (!file_xyz_extension(file_name)) {
-    fprintf(stderr, "Error: The file \"%s\" does not have a .xyz extension.\n",
-            file_name);
-    return 1;
-  }
   // If all checks pass
   printf("The file \"%s\" is valid and has a .xyz extension.\n", file_name);
-
-  // Check that chemistry_program matches a value in the struct, send to lua
-  // Check that job_option matches a value in the struct, send to lua
-  // Check that file is valid
 
   /*LAWRENCE: here is the most complicated example input I can think of:
 
@@ -187,101 +176,4 @@ void help_prompt(void) {
          "Try 'xti -h' for help on getting started. \n");
 }
 
-bool is_valid_length(const char *str, size_t min, size_t max) {
-  // Prevent segmentation fault
-  if (str == NULL) {
-    return false;
-  }
-  size_t len = strlen(str);
-  return (len >= min && len <= max);
-}
 
-bool is_valid_option(char c) {
-  // Check if the character is 's', 'i', 'o', or 'j'
-  return (c == 's' || c == 'i' || c == 'o' || c == 'j');
-}
-
-bool is_duplicate_option(const char *str) {
-  // Check for duplicate characters
-  for (int i = 1; str[i] != '\0'; i++) {
-    for (int j = i + 1; str[j] != '\0'; j++) {
-      if (str[i] == str[j]) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
-// Temporarily just prints out whichever options are valid
-// Add another param, char *script, then execute_lua(script) instead of
-// printing.
-void option_to_lua(char option) {
-  // Call Lua based on option
-  switch (option) {
-  case 's':
-    printf("Lua function 's'\n");
-    break;
-  case 'i':
-    printf("Lua function 'i'\n");
-    break;
-  case 'o':
-    printf("Lua function 'o'\n");
-    break;
-  case 'j':
-    printf("Lua function 'j'\n");
-    break;
-  default:
-    break;
-  }
-}
-
-bool match_str(const char *str, const char *static_array[], size_t array_size) {
-  size_t num_valid_programs = array_size / sizeof(static_array[0]);
-  for (size_t i = 0; i < num_valid_programs; i++) {
-    if (strcmp(str, static_array[i]) == 0) {
-      return true;
-    }
-  }
-  return false; // If no match is found
-}
-
-void execute_lua(const char *script) {
-  lua_State *L = luaL_newstate(); // Create new lua state
-  luaL_openlibs(L);               // Open lua libraries
-
-  if (luaL_dofile(L, script) != LUA_OK) {
-    fprintf(stderr, "Error running Lua script: %s\n", lua_tostring(L, -1));
-  }
-
-  // Only need to clear lua stack if leaving lua state open
-  // if (luaL_dofile(L, "src/help.lua") == LUA_OK) {
-  //  lua_pop(L, lua_gettop(L));
-  //}
-
-  lua_close(L);
-}
-
-void pass_argument_lua(const char *str, const char *global_var,
-                       const char *lua_path) {
-  lua_State *L = luaL_newstate();
-  luaL_openlibs(L);
-
-  lua_pushstring(L, str);
-  lua_setglobal(L, global_var);
-
-  // Execute the Lua script
-  const char *lua_script = lua_path;
-
-  if (luaL_dofile(L, lua_script) != LUA_OK) {
-    fprintf(stderr, "Error passing argument to Lua script: %s\n",
-            lua_tostring(L, -1));
-  }
-
-  lua_close(L);
-}
-
-int file_xyz_extension(const char *file_name) {
-  const char *extension = strrchr(file_name, '.');
-  return (extension != NULL && strcmp(extension, ".xyz") == SUCCESS);
-}
