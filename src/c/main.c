@@ -10,40 +10,15 @@
 #define SUCCESS 0
 #define FAILURE 1
 
-// the following structs are for program and job options
-/*struct Programs {
-  char abinit[7];
-  char gamess[7];
-  char qe[3]; // quantum espresso
-  char orca[5];
-  char gaussian[9];
-  char fhiaims[8];
-  char qchem[6];
-  char siesta[7];
-  char vasp[5];
-  char castep[7];
-};*/
-
 const char *valid_program[] = {"abinit",   "gamess",  "qe",    "orca",
                                "gaussian", "fhiaims", "qchem", "siesta",
                                "vasp",     "castep"};
 
-/*struct Job_types {
-  char opt[30];
-  char freq[30];
-  char sp[30];
-};*/
-
 const char *valid_job[] = {"opt", "freq", "sp"};
-void help_prompt(void);
-
-
-// Rearrange all case handling to check for any failures with all of
-// option/program/job first, then perform the expected operations
 
 int main(int argc, char *argv[]) {
 
-  // option_handling
+  // Call option handling
   const char *option = argv[1];
   char help[3] = "-h";
   if (argc < 2 || argc > 5) {
@@ -82,13 +57,37 @@ int main(int argc, char *argv[]) {
     help_prompt();
     return FAILURE;
   }
-
-  // Call lua API for valid options
-  for (int i = 1; option[i] != '\0'; i++) {
-    option_to_lua(option[i]);
+  // Options i and o are mutually exclusive
+  if (strchr(option, 'i') && strchr(option, 'o')) {
+    fprintf(stderr,
+            "Error: Options 'i' and 'o' cannot be called simultaneously");
+    return FAILURE;
   }
 
-  // program_handling
+  // Call lua API for valid options
+  // Temporarily just prints out whichever options are valid
+  // Add another param, char *script, then execute_lua(script) instead of
+  // printing.
+  for (int i = 1; option[i] != '\0'; i++) {
+    switch (option[i]) {
+    case 's':
+      printf("s: Generate .sh file\n");
+      break;
+    case 'i':
+      printf("i: Input .xyz\n");
+      break;
+    case 'o':
+      printf("o: Output .xyz\n");
+      break;
+    case 'j':
+      printf("j: Specify job\n");
+      break;
+    default:
+      break;
+    }
+  }
+
+  // Call program handling
   const char *chemistry_program = argv[2];
   if (!is_valid_length(chemistry_program, 2, 9)) {
     printf("Invalid program\n");
@@ -108,7 +107,7 @@ int main(int argc, char *argv[]) {
                       "tests/pass_argument.lua");
   }
 
-  // job_handling
+  // Call job handling
   const char *job_type = argv[3];
   if (!is_valid_length(job_type, 2, 4)) {
     printf("Invalid job type\n");
@@ -126,16 +125,9 @@ int main(int argc, char *argv[]) {
     pass_argument_lua(job_type, "job_type", "tests/pass_argument.lua");
   }
 
-  // file_handling
+  // Call file handling
   const char *file_name = argv[4];
   FILE *file = fopen(file_name, "r");
-
-  // Check if .xyz file, then send to lua
-  if (!file_xyz_extension(file_name)) {
-    fprintf(stderr, "Error: The file \"%s\" does not have a .xyz extension.\n",
-            file_name);
-    return 1;
-  }
 
   // Check if file is valid and accessible
   if (file == NULL) {
@@ -150,30 +142,15 @@ int main(int argc, char *argv[]) {
   }
   fclose(file);
 
+  // Check if .xyz file, then send to lua
+  if (!file_xyz_extension(file_name)) {
+    fprintf(stderr, "Error: The file \"%s\" does not have a .xyz extension.\n",
+            file_name);
+    return 1;
+  }
+
   // If all checks pass
   printf("The file \"%s\" is valid and has a .xyz extension.\n", file_name);
 
-  /*LAWRENCE: here is the most complicated example input I can think of:
-
-  xti -psij orca freq test.xyz
-
-  More broadly, this can be thought of as:
-
-  our_program -options chemistry_program job_option file.txt
-
-  there are a few things I'd like to know:
-  1) can the argument "chemistry_program" be stored and sent to Lua files?
-  2) can the argument "job_option" be stored and sent to Lua files?
-
-  If 1/2 are yes's, there might be an easier way for me to do some things in
-  Lua.
-  */
   return SUCCESS;
 }
-
-void help_prompt(void) {
-  printf("Usage: xti -[options] [program] [job] [file...] \n"
-         "Try 'xti -h' for help on getting started. \n");
-}
-
-

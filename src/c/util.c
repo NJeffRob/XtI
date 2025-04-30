@@ -1,5 +1,11 @@
 #include "../../include/util.h"
+#include <stdio.h>
 #include <string.h>
+
+void help_prompt(void) {
+  printf("Usage: xti -[options] [program] [job] [file...] \n"
+         "Try 'xti -h' for help on getting started. \n");
+}
 
 bool is_valid_length(const char *str, size_t min, size_t max) {
   // Prevent segmentation fault
@@ -19,4 +25,3 @@ bool match_str(const char *str, const char *static_array[], size_t array_size) {
   }
   return false; // If no match is found
 }
-

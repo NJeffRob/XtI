@@ -4,29 +4,6 @@
 #include <lualib.h>
 #include <stdio.h>
 
-// Temporarily just prints out whichever options are valid
-// Add another param, char *script, then execute_lua(script) instead of
-// printing.
-void option_to_lua(char option) {
-  // Call Lua based on option
-  switch (option) {
-  case 's':
-    printf("Lua function 's'\n");
-    break;
-  case 'i':
-    printf("Lua function 'i'\n");
-    break;
-  case 'o':
-    printf("Lua function 'o'\n");
-    break;
-  case 'j':
-    printf("Lua function 'j'\n");
-    break;
-  default:
-    break;
-  }
-}
-
 void execute_lua(const char *script) {
   lua_State *L = luaL_newstate(); // Create new lua state
   luaL_openlibs(L);               // Open lua libraries
