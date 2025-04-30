@@ -17,7 +17,6 @@ const char *valid_program[] = {"abinit",   "gamess",  "qe",    "orca",
 const char *valid_job[] = {"opt", "freq", "sp"};
 
 int main(int argc, char *argv[]) {
-
   // Call option handling
   const char *option = argv[1];
   char help[3] = "-h";
@@ -57,10 +56,14 @@ int main(int argc, char *argv[]) {
     help_prompt();
     return FAILURE;
   }
-  // Options i and o are mutually exclusive
+  // Options 'i' and 'o' are mutually exclusive
   if (strchr(option, 'i') && strchr(option, 'o')) {
-    fprintf(stderr,
-            "Error: Options 'i' and 'o' cannot be called simultaneously");
+    printf("Error: Options 'i' and 'o' cannot be called simultaneously\n");
+    return FAILURE;
+  }
+  // Option 'j' can only be used if 'i' was used
+  if (strchr(option, 'j') && !strchr(option, 'i')) {
+    printf("Error: Options 'j' requires the option 'i'\n");
     return FAILURE;
   }
 
@@ -128,29 +131,26 @@ int main(int argc, char *argv[]) {
   // Call file handling
   const char *file_name = argv[4];
   FILE *file = fopen(file_name, "r");
-
   // Check if file is valid and accessible
   if (file == NULL) {
     if (errno == ENOENT) {
-      fprintf(stderr, "Error: File \"%s\" does not exist.\n", file_name);
+      printf("Error: File \"%s\" does not exist.\n", file_name);
     } else if (errno == EACCES) {
-      fprintf(stderr, "Error: Permission denied for file \"%s\".\n", file_name);
+      printf("Error: Permission denied for file \"%s\".\n", file_name);
     } else {
-      perror("Error opening file");
+      perror("Error: cannot open file");
+      printf("Error: cannot open file");
     }
     return FAILURE;
   }
   fclose(file);
-
   // Check if .xyz file, then send to lua
   if (!file_xyz_extension(file_name)) {
-    fprintf(stderr, "Error: The file \"%s\" does not have a .xyz extension.\n",
-            file_name);
+    printf("Error: The file \"%s\" does not have a .xyz extension.\n",
+           file_name);
     return 1;
   }
-
   // If all checks pass
   printf("The file \"%s\" is valid and has a .xyz extension.\n", file_name);
-
   return SUCCESS;
 }

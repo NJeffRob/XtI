@@ -29,9 +29,18 @@ START_TEST(test_invalid_simultaneous_in_out) {
 }
 END_TEST
 
+START_TEST(test_invalid_option_j_without_i) {
+  snprintf(commandLine, sizeof(commandLine),
+           "./bin/xti -soj orca freq %s 2>/dev/null", VALID_FILE_PATH);
+  int exit_code = run_command(commandLine);
+  ck_assert_msg(exit_code != 0,
+                "Expected failure for using option 'j' without option 'i'");
+}
+END_TEST
+
 START_TEST(test_invalid_program) {
   snprintf(commandLine, sizeof(commandLine),
-           "./bin/xti -sio program freq %s 2>/dev/null", VALID_FILE_PATH);
+           "./bin/xti -so program freq %s 2>/dev/null", VALID_FILE_PATH);
   int exit_code = run_command(commandLine);
   ck_assert_msg(exit_code != 0, "Expected failure for invalid program");
 }
@@ -39,7 +48,7 @@ END_TEST
 
 START_TEST(test_invalid_job) {
   snprintf(commandLine, sizeof(commandLine),
-           "./bin/xti -io orca job %s 2>/dev/null", VALID_FILE_PATH);
+           "./bin/xti -ij orca job %s 2>/dev/null", VALID_FILE_PATH);
   int exit_code = run_command(commandLine);
   ck_assert_msg(exit_code != 0, "Expected failure for invalid job type");
 }
@@ -58,6 +67,7 @@ Suite *exec_suite(void) {
 
   tcase_add_test(tc, test_valid_input);
   tcase_add_test(tc, test_invalid_simultaneous_in_out);
+  tcase_add_test(tc, test_invalid_option_j_without_i);
   tcase_add_test(tc, test_invalid_program);
   tcase_add_test(tc, test_invalid_job);
   tcase_add_test(tc, test_missing_file);
