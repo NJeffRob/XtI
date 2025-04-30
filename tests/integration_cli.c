@@ -56,7 +56,7 @@ END_TEST
 
 START_TEST(test_missing_file) {
   int exit_code =
-      run_command("./bin/xti -so orca freq nonexistent.xyz 2>/dev/null");
+      run_command("./bin/xti -is orca freq nonexistent.xyz 2>/dev/null");
   ck_assert_msg(exit_code != 0, "Expected failure due to missing file");
 }
 END_TEST

@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
   }
   // Option 'j' can only be used if 'i' was used
   if (strchr(option, 'j') && !strchr(option, 'i')) {
-    printf("Error: Options 'j' requires the option 'i'\n");
+    printf("Error: Option 'j' requires the option 'i'\n");
     return FAILURE;
   }
 
