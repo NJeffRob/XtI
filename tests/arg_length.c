@@ -1,33 +1,38 @@
 #include "../include/util.h"
 #include <check.h>
 
-START_TEST(test_valid_lengths) {
+START_TEST(test_pass_valid_lengths) {
   ck_assert(is_valid_length("test", 1, 5));
   ck_assert(is_valid_length("hi", 2, 2));
 }
 END_TEST
 
-START_TEST(test_invalid_lengths) {
+START_TEST(test_fail_invalid_lengths) {
   ck_assert(!is_valid_length("", 1, 5));
   ck_assert(!is_valid_length("invalidstring", 1, 5));
   ck_assert(!is_valid_length(NULL, 1, 5));
 }
 END_TEST
 
-Suite *utils_suite(void) {
-  Suite *s = suite_create("Utils");
-  TCase *tc = tcase_create("Core");
+Suite *arg_length_suite(void) {
+  Suite *s = suite_create("arg_length");
 
-  tcase_add_test(tc, test_valid_lengths);
-  tcase_add_test(tc, test_invalid_lengths);
-  suite_add_tcase(s, tc);
+  TCase *tc_pass = tcase_create("Pass");
+  TCase *tc_fail = tcase_create("Fail");
+
+  tcase_add_test(tc_pass, test_pass_valid_lengths);
+
+  tcase_add_test(tc_fail, test_fail_invalid_lengths);
+
+  suite_add_tcase(s, tc_pass);
+  suite_add_tcase(s, tc_fail);
 
   return s;
 }
 
 int main(void) {
   int failed;
-  Suite *s = utils_suite();
+  Suite *s = arg_length_suite();
   SRunner *sr = srunner_create(s);
 
   srunner_run_all(sr, CK_NORMAL);
