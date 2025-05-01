@@ -28,21 +28,24 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Tests 
-TEST_EXEC_INTEGRATION = $(BIN_DIR)/test_integration_cli
-TEST_EXEC_UTIL = $(BIN_DIR)/test_unit_util
+TEST_EXEC_INTEGRATION = $(BIN_DIR)/test_cli
+TEST_EXEC_ARG_LENGTH = $(BIN_DIR)/test_arg_length
 
-test_integration_cli: $(EXEC)
+test_cli: $(EXEC)
 	@mkdir -p $(BIN_DIR)
-	$(CC) $(TEST_DIR)/integration_cli.c -o $(TEST_EXEC_INTEGRATION) $(shell pkg-config --cflags --libs check)
+	$(CC) $(TEST_DIR)/cli.c -o $(TEST_EXEC_INTEGRATION) $(shell pkg-config --cflags --libs check)
 	$(TEST_EXEC_INTEGRATION)
-test_unit_util: tests/unit_util.c src/c/util.c
+test_arg_length: tests/arg_length.c src/c/util.c
 	@mkdir -p $(BIN_DIR)
-	$(CC) $(TEST_DIR)/unit_util.c src/c/util.c -o $(TEST_EXEC_UTIL) $(shell pkg-config --cflags --libs check)
-	$(TEST_EXEC_UTIL)
+	$(CC) $(TEST_DIR)/arg_length.c src/c/util.c -o $(TEST_EXEC_ARG_LENGTH) $(shell pkg-config --cflags --libs check)
+	$(TEST_EXEC_ARG_LENGTH)
+
+# Run all tests
+test: test_arg_length test_cli
 
 # Clean object and binary files
 clean:
 	rm -rf $(OBJ_DIR) $(BIN_DIR) 
 
 # Phony targets (not files)
-.PHONY: all clean test test_unit_util test_integration_cli
+.PHONY: all clean test test_arg_length test_cli
