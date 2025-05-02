@@ -28,13 +28,13 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Tests 
-TEST_EXEC_INTEGRATION = $(BIN_DIR)/test_cli
+TEST_EXEC_CLI = $(BIN_DIR)/test_cli
 TEST_EXEC_ARG_LENGTH = $(BIN_DIR)/test_arg_length
 
 test_cli: $(EXEC)
 	@mkdir -p $(BIN_DIR)
-	$(CC) $(TEST_DIR)/cli.c -o $(TEST_EXEC_INTEGRATION) $(shell pkg-config --cflags --libs check)
-	$(TEST_EXEC_INTEGRATION)
+	$(CC) $(TEST_DIR)/cli.c -o $(TEST_EXEC_CLI) $(shell pkg-config --cflags --libs check)
+	$(TEST_EXEC_CLI)
 test_arg_length: tests/arg_length.c src/c/util.c
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(TEST_DIR)/arg_length.c src/c/util.c -o $(TEST_EXEC_ARG_LENGTH) $(shell pkg-config --cflags --libs check)

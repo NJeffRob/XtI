@@ -54,4 +54,4 @@ Integration tests on C input handling with the [Check](https://libcheck.github.i
 
 Dependencies are check, and pkg-config, installed with `sudo apt install check pkg-config`
 
-Run `make`, `make test`, and `./-pthread`
+Run `make` and `make test`
