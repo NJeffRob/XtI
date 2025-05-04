@@ -55,3 +55,6 @@ Integration tests on C input handling with the [Check](https://libcheck.github.i
 Dependencies are check, and pkg-config, installed with `sudo apt install check pkg-config`
 
 Run `make` and `make test`
+
+The file `scripts/generate_test.py` will automatically create the boilerplate for a C test and update the Makefile. The script can be ran with `python3 scripts/generate_test.py <test_name>.c`
+

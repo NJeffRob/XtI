@@ -27,18 +27,16 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(OBJ_DIR)  
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Tests 
-TEST_EXEC_CLI = $(BIN_DIR)/test_cli
-TEST_EXEC_ARG_LENGTH = $(BIN_DIR)/test_arg_length
-
+# Test targets
 test_cli: $(EXEC)
 	@mkdir -p $(BIN_DIR)
-	$(CC) $(TEST_DIR)/cli.c -o $(TEST_EXEC_CLI) $(shell pkg-config --cflags --libs check)
-	$(TEST_EXEC_CLI)
+	$(CC) $(TEST_DIR)/cli.c -o $(BIN_DIR)/test_cli $(shell pkg-config --cflags --libs check)
+	$(BIN_DIR)/test_cli
+
 test_arg_length: tests/arg_length.c src/c/util.c
 	@mkdir -p $(BIN_DIR)
-	$(CC) $(TEST_DIR)/arg_length.c src/c/util.c -o $(TEST_EXEC_ARG_LENGTH) $(shell pkg-config --cflags --libs check)
-	$(TEST_EXEC_ARG_LENGTH)
+	$(CC) $(TEST_DIR)/arg_length.c src/c/util.c -o $(BIN_DIR)/test_arg_length $(shell pkg-config --cflags --libs check)
+	$(BIN_DIR)/test_arg_length
 
 # Run all tests
 test: test_arg_length test_cli
