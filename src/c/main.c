@@ -10,6 +10,8 @@
 #define SUCCESS 0
 #define FAILURE 1
 
+#define DEFAULT_JOB_TYPE "sp"
+
 const char *valid_program[] = {"abinit",   "gamess",  "qe",    "orca",
                                "gaussian", "fhiaims", "qchem", "siesta",
                                "vasp",     "castep"};
@@ -71,19 +73,27 @@ int main(int argc, char *argv[]) {
   // Temporarily just prints out whichever options are valid
   // Add another param, char *script, then execute_lua(script) instead of
   // printing.
+  bool option_i = false;
+  bool option_j = false;
+  bool option_o = false;
+  bool option_s = false;
+
   for (int i = 1; option[i] != '\0'; i++) {
     switch (option[i]) {
-    case 's':
-      printf("s: Generate .sh file\n");
-      break;
     case 'i':
-      printf("i: Input .xyz\n");
-      break;
-    case 'o':
-      printf("o: Output .xyz\n");
+      option_i = true;
       break;
     case 'j':
-      printf("j: Specify job\n");
+      option_j = true;
+      break;
+    case 'o':
+      option_o = true;
+      break;
+    case 's':
+      printf("s: Generate .sh file\n");
+      option_s = true;
+      //      pass_argument_lua(option_s, "OPTION_S",
+      //      "tests/pass_argument.lua");
       break;
     default:
       break;
@@ -111,25 +121,28 @@ int main(int argc, char *argv[]) {
   }
 
   // Call job handling
-  const char *job_type = argv[3];
-  if (!is_valid_length(job_type, 2, 4)) {
-    printf("Invalid job type\n");
-    help_prompt();
-    return FAILURE;
-  }
-  // Check if string is in the static array
-  else if (!match_str(job_type, valid_job, sizeof(valid_job))) {
-    printf("Invalid job type\n");
-    help_prompt();
-    return FAILURE;
+  const char *job_type;
+  if (argc < 5) {
+    job_type = DEFAULT_JOB_TYPE; // Default job_type
+  } else {
+    job_type = argv[3];
+    if (!is_valid_length(job_type, 2, 4)) {
+      printf("Invalid job type\n");
+      help_prompt();
+      return FAILURE;
+    }
+    // Check if string is in the static array
+    else if (!match_str(job_type, valid_job, sizeof(valid_job))) {
+      printf("Invalid job type\n");
+      help_prompt();
+      return FAILURE;
+    }
   }
   // Pass job_type to Lua
-  else {
-    pass_argument_lua(job_type, "JOB_TYPE", "tests/pass_argument.lua");
-  }
+  pass_argument_lua(job_type, "JOB_TYPE", "tests/pass_argument.lua");
 
   // Call file handling
-  const char *file_name = argv[4];
+  const char *file_name = argv[argc - 1];
   FILE *file = fopen(file_name, "r");
   // Check if file is valid and accessible
   if (file == NULL) {
@@ -139,7 +152,7 @@ int main(int argc, char *argv[]) {
       printf("Error: Permission denied for file \"%s\".\n", file_name);
     } else {
       perror("Error: cannot open file");
-      printf("Error: cannot open file");
+      //      printf("Error: cannot open file");
     }
     return FAILURE;
   }
@@ -150,7 +163,18 @@ int main(int argc, char *argv[]) {
            file_name);
     return 1;
   }
-  // If all checks pass
+
+  // If all checks pass (temporary)
+  if (option_i)
+    printf("Generate input file\n");
+  if (option_j)
+    printf("Job specified\n");
+  if (option_o)
+    printf("Generate output file\n");
+  if (option_s)
+    printf("Generate submission script\n");
+
+  printf("Done!\n");
   printf("The file \"%s\" is valid and has a .xyz extension.\n", file_name);
   return SUCCESS;
 }

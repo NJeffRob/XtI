@@ -24,6 +24,14 @@ START_TEST(test_pass_input) {
 }
 END_TEST
 
+START_TEST(test_pass_sp) {
+  build_command("-sij orca", VALID_FILE_PATH);
+  int exit_code = run_command(commandLine);
+  ck_assert_msg(exit_code == 0, "Expected success, got exit code %d",
+                exit_code);
+}
+END_TEST
+
 START_TEST(test_fail_simultaneous_in_out) {
   build_command("-ioj orca freq", VALID_FILE_PATH);
   int exit_code = run_command(commandLine);
@@ -68,6 +76,7 @@ Suite *cli_suite(void) {
   TCase *tc_fail = tcase_create("Fail");
 
   tcase_add_test(tc_pass, test_pass_input);
+  tcase_add_test(tc_pass, test_pass_sp);
 
   tcase_add_test(tc_fail, test_fail_simultaneous_in_out);
   tcase_add_test(tc_fail, test_fail_option_j_without_i);
