@@ -6,7 +6,7 @@
 START_TEST(test_pass_xyz) {
   ck_assert(check_file_extension("pass.xyz", ".xyz"));
   ck_assert(check_file_extension("pass.sh", ".sh"));
-  ck_assert(check_file_extension("pass.lua", ".lua"));
+  ck_assert(check_file_extension("pass.log", ".log"));
 }
 END_TEST
 

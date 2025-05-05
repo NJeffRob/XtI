@@ -16,54 +16,127 @@ int run_command(const char *cmd) {
   return WEXITSTATUS(status);
 }
 
-START_TEST(test_pass_input) {
-  build_command("-sij orca freq", VALID_FILE_PATH);
+START_TEST(test_pass_help) {
+  build_command("-h", VALID_FILE_PATH);
   int exit_code = run_command(commandLine);
   ck_assert_msg(exit_code == 0, "Expected success, got exit code %d",
                 exit_code);
 }
 END_TEST
 
-START_TEST(test_pass_sp) {
-  build_command("-sij orca", VALID_FILE_PATH);
+START_TEST(test_pass_input) {
+  build_command("-i orca freq", VALID_FILE_PATH);
   int exit_code = run_command(commandLine);
   ck_assert_msg(exit_code == 0, "Expected success, got exit code %d",
                 exit_code);
+}
+END_TEST
+
+START_TEST(test_pass_default_job) {
+  build_command("-i gamess", VALID_FILE_PATH);
+  int exit_code = run_command(commandLine);
+  ck_assert_msg(exit_code == 0, "Expected success, got exit code %d",
+                exit_code);
+}
+END_TEST
+
+START_TEST(test_pass_output) {
+  build_command("-o fhiaims", VALID_FILE_PATH);
+  int exit_code = run_command(commandLine);
+  ck_assert_msg(exit_code == 0, "Expected success, got exit code %d",
+                exit_code);
+}
+END_TEST
+
+START_TEST(test_fail_no_arguments) {
+  build_command("", "");
+  int exit_code = run_command(commandLine);
+  ck_assert_msg(exit_code != 0, "Expected failure for too few arguments");
+}
+END_TEST
+
+START_TEST(test_fail_many_arguments) {
+  build_command("-i castep opt vasp", VALID_FILE_PATH);
+  int exit_code = run_command(commandLine);
+  ck_assert_msg(exit_code != 0, "Expected failure for too many arguments");
+}
+END_TEST
+
+START_TEST(test_fail_few_arguments) {
+  build_command("-", "");
+  int exit_code = run_command(commandLine);
+  ck_assert_msg(exit_code != 0, "Expected failure for too few arguments");
+}
+END_TEST
+
+START_TEST(test_fail_no_hyphen) {
+  build_command("i fhiaims freq", VALID_FILE_PATH);
+  int exit_code = run_command(commandLine);
+  ck_assert_msg(exit_code != 0, "Expected failure for no hyphen");
+}
+END_TEST
+
+START_TEST(test_fail_no_hyphen_duplicate) {
+  build_command("ii fhiaims freq", VALID_FILE_PATH);
+  int exit_code = run_command(commandLine);
+  ck_assert_msg(exit_code != 0, "Expected failure for no hyphen and duplicate options");
+}
+END_TEST
+
+START_TEST(test_fail_no_hyphen_simultaneous) {
+  build_command("io fhiaims freq", VALID_FILE_PATH);
+  int exit_code = run_command(commandLine);
+  ck_assert_msg(exit_code != 0, "Expected failure for no hyphen and simultaneous input/output");
+}
+END_TEST
+
+START_TEST(test_fail_no_options_otherwise_valid) {
+  build_command("- fhiaims freq", VALID_FILE_PATH);
+  int exit_code = run_command(commandLine);
+  ck_assert_msg(exit_code != 0,
+                "Expected failure for having no options but otherwise valid");
 }
 END_TEST
 
 START_TEST(test_fail_simultaneous_in_out) {
-  build_command("-ioj orca freq", VALID_FILE_PATH);
+  build_command("-io orca", VALID_FILE_PATH);
   int exit_code = run_command(commandLine);
   ck_assert_msg(exit_code != 0,
                 "Expected failure for simultaneous input/output call");
 }
 END_TEST
 
-START_TEST(test_fail_option_j_without_i) {
-  build_command("-soj orca freq", VALID_FILE_PATH);
+START_TEST(test_fail_output_with_job) {
+  build_command("-o orca freq", VALID_FILE_PATH);
   int exit_code = run_command(commandLine);
   ck_assert_msg(exit_code != 0,
-                "Expected failure for using option 'j' without option 'i'");
+                "Expected failure for using job with output flag");
+}
+END_TEST
+
+START_TEST(test_fail_invalid_options) {
+  build_command("-sj orca freq", VALID_FILE_PATH);
+  int exit_code = run_command(commandLine);
+  ck_assert_msg(exit_code != 0, "Expected failure for invalid options");
 }
 END_TEST
 
 START_TEST(test_fail_invalid_program) {
-  build_command("-so program freq", VALID_FILE_PATH);
+  build_command("-i program freq", VALID_FILE_PATH);
   int exit_code = run_command(commandLine);
   ck_assert_msg(exit_code != 0, "Expected failure for invalid program");
 }
 END_TEST
 
 START_TEST(test_fail_invalid_job) {
-  build_command("-ij orca job", VALID_FILE_PATH);
+  build_command("-i orca job", VALID_FILE_PATH);
   int exit_code = run_command(commandLine);
   ck_assert_msg(exit_code != 0, "Expected failure for invalid job type");
 }
 END_TEST
 
 START_TEST(test_fail_missing_file) {
-  build_command("-is orca freq", "missing.xyz");
+  build_command("-o orca", "missing.xyz");
   int exit_code = run_command(commandLine);
   ck_assert_msg(exit_code != 0, "Expected failure due to missing file");
 }
@@ -75,11 +148,21 @@ Suite *cli_suite(void) {
   TCase *tc_pass = tcase_create("Pass");
   TCase *tc_fail = tcase_create("Fail");
 
+  tcase_add_test(tc_pass, test_pass_help);
   tcase_add_test(tc_pass, test_pass_input);
-  tcase_add_test(tc_pass, test_pass_sp);
+  tcase_add_test(tc_pass, test_pass_default_job);
+  tcase_add_test(tc_pass, test_pass_output);
 
+  tcase_add_test(tc_fail, test_fail_no_arguments);
+  tcase_add_test(tc_fail, test_fail_many_arguments);
+  tcase_add_test(tc_fail, test_fail_few_arguments);
+  tcase_add_test(tc_fail, test_fail_no_hyphen);
+  tcase_add_test(tc_fail, test_fail_no_hyphen_duplicate);
+  tcase_add_test(tc_fail, test_fail_no_hyphen_simultaneous);
+  tcase_add_test(tc_fail, test_fail_no_options_otherwise_valid);
   tcase_add_test(tc_fail, test_fail_simultaneous_in_out);
-  tcase_add_test(tc_fail, test_fail_option_j_without_i);
+  tcase_add_test(tc_fail, test_fail_output_with_job);
+  tcase_add_test(tc_fail, test_fail_invalid_options);
   tcase_add_test(tc_fail, test_fail_invalid_program);
   tcase_add_test(tc_fail, test_fail_invalid_job);
   tcase_add_test(tc_fail, test_fail_missing_file);

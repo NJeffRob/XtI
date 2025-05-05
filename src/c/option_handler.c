@@ -6,8 +6,8 @@
 #include <stdbool.h>
 
 bool is_valid_option(char c) {
-  // Check if the character is 's', 'i', 'o', or 'j'
-  return (c == 's' || c == 'i' || c == 'o' || c == 'j');
+  // Check if the option flag is -i for input, or -o for output
+  return (c == 'i' || c == 'o');
 }
 
 bool is_duplicate_option(const char *str) {
