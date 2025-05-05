@@ -1,20 +1,20 @@
 import os
 import sys
-import re
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
 TEST_DIR = os.path.join(ROOT_DIR, "tests")
 MAKEFILE_PATH = os.path.join(ROOT_DIR, "Makefile")
 
-def create_test_file(filename):
+
+def create_test_file(filename: str):
     path = os.path.join(TEST_DIR, filename)
     if os.path.exists(path):
         print(f"[!] Test file already exists: {filename}")
         return False
     base = filename.split(".")[0]
     with open(path, "w") as f:
-        f.write(f"""#"../include/.h"
+        _ = f.write(f"""#include "../include/{base}.h"
 #include <check.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -54,7 +54,8 @@ int main(void) {{
     print(f"[+] Created test file: {filename}")
     return True
 
-def update_makefile(filename):
+
+def update_makefile(filename: str):
     base = filename.split(".")[0]
     test_target = f"test_{base}"
     test_exec = f"$(BIN_DIR)/{test_target}"
@@ -68,10 +69,9 @@ def update_makefile(filename):
         return
 
     # Find where to insert new test rule (after existing test_ targets)
-# Find the index of the composite "test:" target
+    # Find the index of the composite "test:" target
     composite_test_idx = next(
-        (i for i, line in enumerate(lines) if line.strip().startswith("test:")),
-        None
+        (i for i, line in enumerate(lines) if line.strip().startswith("test:")), None
     )
 
     if composite_test_idx is None or composite_test_idx < 2:
@@ -110,6 +110,7 @@ def update_makefile(filename):
 
     print(f"[+] Updated Makefile with rule for: {test_target}")
 
+
 def main():
     if len(sys.argv) != 2:
         print("Usage: generate_test.py <filename.c>")
@@ -125,6 +126,6 @@ def main():
     if create_test_file(filename):
         update_makefile(filename)
 
+
 if __name__ == "__main__":
     main()
-
