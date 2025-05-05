@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define VALID_FILE_PATH "src/program_test_files/h2.xyz"
+#define VALID_INPUT_FILE "src/program_test_files/h2.xyz"
+#define VALID_OUTPUT_FILE "src/program_test_files/gaussian/h2o-opt.log"
 
 char commandLine[256];
 
@@ -17,7 +18,7 @@ int run_command(const char *cmd) {
 }
 
 START_TEST(test_pass_help) {
-  build_command("-h", VALID_FILE_PATH);
+  build_command("-h", "");
   int exit_code = run_command(commandLine);
   ck_assert_msg(exit_code == 0, "Expected success, got exit code %d",
                 exit_code);
@@ -25,7 +26,7 @@ START_TEST(test_pass_help) {
 END_TEST
 
 START_TEST(test_pass_input) {
-  build_command("-i orca freq", VALID_FILE_PATH);
+  build_command("-i orca freq", VALID_INPUT_FILE);
   int exit_code = run_command(commandLine);
   ck_assert_msg(exit_code == 0, "Expected success, got exit code %d",
                 exit_code);
@@ -33,7 +34,7 @@ START_TEST(test_pass_input) {
 END_TEST
 
 START_TEST(test_pass_default_job) {
-  build_command("-i gamess", VALID_FILE_PATH);
+  build_command("-i gamess", VALID_INPUT_FILE);
   int exit_code = run_command(commandLine);
   ck_assert_msg(exit_code == 0, "Expected success, got exit code %d",
                 exit_code);
@@ -41,10 +42,24 @@ START_TEST(test_pass_default_job) {
 END_TEST
 
 START_TEST(test_pass_output) {
-  build_command("-o fhiaims", VALID_FILE_PATH);
+  build_command("-o fhiaims", VALID_OUTPUT_FILE);
   int exit_code = run_command(commandLine);
   ck_assert_msg(exit_code == 0, "Expected success, got exit code %d",
                 exit_code);
+}
+END_TEST
+
+START_TEST(test_fail_invalid_output_file) {
+  build_command("-o fhiaims", VALID_INPUT_FILE);
+  int exit_code = run_command(commandLine);
+  ck_assert_msg(exit_code != 0, "Expected failure for invalid file extension for outputs");
+}
+END_TEST
+
+START_TEST(test_fail_invalid_input_file) {
+  build_command("-i qe", VALID_OUTPUT_FILE);
+  int exit_code = run_command(commandLine);
+  ck_assert_msg(exit_code != 0, "Expected failure for invalid file extension for outputs");
 }
 END_TEST
 
@@ -56,7 +71,7 @@ START_TEST(test_fail_no_arguments) {
 END_TEST
 
 START_TEST(test_fail_many_arguments) {
-  build_command("-i castep opt vasp", VALID_FILE_PATH);
+  build_command("-i castep opt vasp", VALID_INPUT_FILE);
   int exit_code = run_command(commandLine);
   ck_assert_msg(exit_code != 0, "Expected failure for too many arguments");
 }
@@ -70,28 +85,30 @@ START_TEST(test_fail_few_arguments) {
 END_TEST
 
 START_TEST(test_fail_no_hyphen) {
-  build_command("i fhiaims freq", VALID_FILE_PATH);
+  build_command("i fhiaims freq", VALID_INPUT_FILE);
   int exit_code = run_command(commandLine);
   ck_assert_msg(exit_code != 0, "Expected failure for no hyphen");
 }
 END_TEST
 
 START_TEST(test_fail_no_hyphen_duplicate) {
-  build_command("ii fhiaims freq", VALID_FILE_PATH);
+  build_command("ii fhiaims freq", VALID_INPUT_FILE);
   int exit_code = run_command(commandLine);
-  ck_assert_msg(exit_code != 0, "Expected failure for no hyphen and duplicate options");
+  ck_assert_msg(exit_code != 0,
+                "Expected failure for no hyphen and duplicate options");
 }
 END_TEST
 
 START_TEST(test_fail_no_hyphen_simultaneous) {
-  build_command("io fhiaims freq", VALID_FILE_PATH);
+  build_command("io fhiaims freq", VALID_INPUT_FILE);
   int exit_code = run_command(commandLine);
-  ck_assert_msg(exit_code != 0, "Expected failure for no hyphen and simultaneous input/output");
+  ck_assert_msg(exit_code != 0,
+                "Expected failure for no hyphen and simultaneous input/output");
 }
 END_TEST
 
 START_TEST(test_fail_no_options_otherwise_valid) {
-  build_command("- fhiaims freq", VALID_FILE_PATH);
+  build_command("- fhiaims freq", VALID_INPUT_FILE);
   int exit_code = run_command(commandLine);
   ck_assert_msg(exit_code != 0,
                 "Expected failure for having no options but otherwise valid");
@@ -99,7 +116,7 @@ START_TEST(test_fail_no_options_otherwise_valid) {
 END_TEST
 
 START_TEST(test_fail_simultaneous_in_out) {
-  build_command("-io orca", VALID_FILE_PATH);
+  build_command("-io orca", VALID_INPUT_FILE);
   int exit_code = run_command(commandLine);
   ck_assert_msg(exit_code != 0,
                 "Expected failure for simultaneous input/output call");
@@ -107,7 +124,7 @@ START_TEST(test_fail_simultaneous_in_out) {
 END_TEST
 
 START_TEST(test_fail_output_with_job) {
-  build_command("-o orca freq", VALID_FILE_PATH);
+  build_command("-o orca freq", VALID_INPUT_FILE);
   int exit_code = run_command(commandLine);
   ck_assert_msg(exit_code != 0,
                 "Expected failure for using job with output flag");
@@ -115,21 +132,21 @@ START_TEST(test_fail_output_with_job) {
 END_TEST
 
 START_TEST(test_fail_invalid_options) {
-  build_command("-sj orca freq", VALID_FILE_PATH);
+  build_command("-sj orca freq", VALID_INPUT_FILE);
   int exit_code = run_command(commandLine);
   ck_assert_msg(exit_code != 0, "Expected failure for invalid options");
 }
 END_TEST
 
 START_TEST(test_fail_invalid_program) {
-  build_command("-i program freq", VALID_FILE_PATH);
+  build_command("-i program freq", VALID_INPUT_FILE);
   int exit_code = run_command(commandLine);
   ck_assert_msg(exit_code != 0, "Expected failure for invalid program");
 }
 END_TEST
 
 START_TEST(test_fail_invalid_job) {
-  build_command("-i orca job", VALID_FILE_PATH);
+  build_command("-i orca job", VALID_INPUT_FILE);
   int exit_code = run_command(commandLine);
   ck_assert_msg(exit_code != 0, "Expected failure for invalid job type");
 }
@@ -153,6 +170,8 @@ Suite *cli_suite(void) {
   tcase_add_test(tc_pass, test_pass_default_job);
   tcase_add_test(tc_pass, test_pass_output);
 
+  tcase_add_test(tc_fail, test_fail_invalid_output_file);
+  tcase_add_test(tc_fail, test_fail_invalid_input_file);
   tcase_add_test(tc_fail, test_fail_no_arguments);
   tcase_add_test(tc_fail, test_fail_many_arguments);
   tcase_add_test(tc_fail, test_fail_few_arguments);

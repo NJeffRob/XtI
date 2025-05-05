@@ -84,36 +84,6 @@ int main(int argc, char *argv[]) {
     return error_fail_message("Invalid program\n");
   }
 
-  // option_input then argv[argc - 1] is file
-  // if argv[3] = argv[argc - 1] then default = sp and file = argv[argc - 1]
-  // if argv[3] != argv[argc - 1] then job type = argv[3] and file = argv[argc
-  // - 1] option_output then argv[3] is file
-
-  // option_output = true, then move to file handling
-  if (option_output) {
-    // Exit if there are too many arguments "xti -o chemistry_program
-    // file.ext"
-    if (argc > 4) {
-      return error_fail_message("Wrong number of arguments for output\n");
-    }
-  }
-  // option_input = true, set job_type if specified or default to "sp"
-  if (option_input) {
-    if (argc < 5) {
-      // Use default job_type
-      job_type = DEFAULT_JOB_TYPE; // Default job_type
-    } else {
-      job_type = argv[3];
-      if (!is_valid_length(job_type, 2, 4)) {
-        return error_fail_message("Invalid job type\n");
-      }
-      // Check if string is in the static array
-      else if (!match_str(job_type, valid_job, sizeof(valid_job))) {
-        return error_fail_message("Invalid job type\n");
-      }
-    }
-  }
-
   // Call file handling
   FILE *file = fopen(file_name, "r");
   // Check if file is valid and accessible
@@ -130,22 +100,50 @@ int main(int argc, char *argv[]) {
   }
   fclose(file);
 
-  // Check if .xyz file, (temporary). Should be called if option_i = true
-  if (!check_file_extension(file_name, ".xyz")) {
-    return error_fail_message("The file \"%s\" does not have a .xyz extension\n",
-                       file_name);
-  }
+  // option_output = true, then move to file handling
+  if (option_output) {
+    // Exit if too many arguments "xti -o chemistry_program file.ext"
+    if (argc != 4) {
+      return error_fail_message("Wrong number of arguments for output\n");
+    }
 
-  // If all checks pass
+    // Check for valid file extensions
+    if (!check_file_extension(file_name, ".log")) {
+      return error_fail_message(
+          "The file \"%s\" does not have a valid extension for outputs\n",
+          file_name);
+    }
+
+    printf("Generate output file\n");
+    printf("Input success: \"%s\"\n", file_name);
+  }
+  // option_input = true, set job_type if specified or default to "sp"
   if (option_input) {
-    // Input generation takes in .xyz
+    if (argc < 5) {
+      // Use default job_type
+      job_type = DEFAULT_JOB_TYPE; // Default job_type
+    } else {
+      job_type = argv[3];
+      if (!is_valid_length(job_type, 2, 4)) {
+        return error_fail_message("Invalid job type\n");
+      }
+      // Check if string is in the static array
+      else if (!match_str(job_type, valid_job, sizeof(valid_job))) {
+        return error_fail_message("Invalid job type\n");
+      }
+    }
+
+    // Check if .xyz file, (temporary). Should be called if option_i = true
+    if (!check_file_extension(file_name, ".xyz")) {
+      return error_fail_message(
+          "The file \"%s\" does not have a .xyz extension\n", file_name);
+    }
+
     printf("Generate input file\n");
+    printf("Input success: \"%s\"\n", file_name);
+
     // Pass job_type to Lua OR can execute_lua
     pass_argument_lua(job_type, "JOB_TYPE", "examples/pass_argument.lua");
-  }
-  if (option_output) {
-    // Output generation should have list of specific file extensions
-    printf("Generate output file\n");
   }
 
   // Pass chemistry_program to Lua OR can execute_lua
