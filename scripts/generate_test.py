@@ -19,8 +19,12 @@ def create_test_file(filename: str):
 #include <stdlib.h>
 #include <stdio.h>
 
-START_TEST(sample_test) {{
-    ck_assert_int_eq(1, 1);
+START_TEST(test_pass_test) {{
+    ck_assert();
+}} END_TEST
+
+START_TEST(test_fail_test) {{
+    ck_assert();
 }} END_TEST
 
 Suite *{base}_suite(void) {{
@@ -29,9 +33,9 @@ Suite *{base}_suite(void) {{
   TCase *tc_pass = tcase_create("Pass");
   TCase *tc_fail = tcase_create("Fail");
 
-  tcase_add_test(tc_pass, sample_test);
+  tcase_add_test(tc_pass, test_pass_test);
 
-  tcase_add_test(tc_fail, sample_test);
+  tcase_add_test(tc_fail, test_fail_test);
 
   suite_add_tcase(s, tc_pass);
   suite_add_tcase(s, tc_fail);

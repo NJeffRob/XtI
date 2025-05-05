@@ -106,7 +106,7 @@ int main(int argc, char *argv[]) {
   }
   // Pass chemistry_program to Lua
   else {
-    pass_argument_lua(chemistry_program, "chemistry_program",
+    pass_argument_lua(chemistry_program, "CHEMISTRY_PROGRAM",
                       "tests/pass_argument.lua");
   }
 
@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
   }
   // Pass job_type to Lua
   else {
-    pass_argument_lua(job_type, "job_type", "tests/pass_argument.lua");
+    pass_argument_lua(job_type, "JOB_TYPE", "tests/pass_argument.lua");
   }
 
   // Call file handling

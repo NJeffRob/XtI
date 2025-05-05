@@ -38,12 +38,17 @@ test_arg_length: tests/arg_length.c src/c/util.c
 	$(CC) $(TEST_DIR)/arg_length.c src/c/util.c -o $(BIN_DIR)/test_arg_length $(shell pkg-config --cflags --libs check)
 	$(BIN_DIR)/test_arg_length
 
+test_file_handler: $(TEST_DIR)/file_handler.c src/c/file_handler.c
+	@mkdir -p $(BIN_DIR)
+	$(CC) $(TEST_DIR)/file_handler.c src/c/file_handler.c -o $(BIN_DIR)/test_file_handler $(shell pkg-config --cflags --libs check)
+	$(BIN_DIR)/test_file_handler
+
 # Run all tests
-test: test_arg_length test_cli
+test: test_arg_length test_cli test_file_handler
 
 # Clean object and binary files
 clean:
 	rm -rf $(OBJ_DIR) $(BIN_DIR) 
 
 # Phony targets (not files)
-.PHONY: all clean test test_arg_length test_cli
+.PHONY: all clean test test_arg_length test_cli test_file_handler
