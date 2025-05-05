@@ -90,10 +90,7 @@ int main(int argc, char *argv[]) {
       option_o = true;
       break;
     case 's':
-      printf("s: Generate .sh file\n");
       option_s = true;
-      //      pass_argument_lua(option_s, "OPTION_S",
-      //      "tests/pass_argument.lua");
       break;
     default:
       break;
@@ -158,7 +155,7 @@ int main(int argc, char *argv[]) {
   }
   fclose(file);
   // Check if .xyz file, then send to lua
-  if (!file_xyz_extension(file_name)) {
+  if (!check_file_extension(file_name, ".xyz")) {
     printf("Error: The file \"%s\" does not have a .xyz extension.\n",
            file_name);
     return 1;

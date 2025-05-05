@@ -4,16 +4,16 @@
 #include <stdlib.h>
 
 START_TEST(test_pass_xyz) {
-  ck_assert(file_xyz_extension("some_crazy_file.xyz"));
-  ck_assert(file_xyz_extension("test.xyz"));
+  ck_assert(check_file_extension("pass.xyz", ".xyz"));
+  ck_assert(check_file_extension("pass.sh", ".sh"));
+  ck_assert(check_file_extension("pass.lua", ".lua"));
 }
 END_TEST
 
 START_TEST(test_fail_xyz) {
-  ck_assert(!file_xyz_extension("typo1.xy"));
-  ck_assert(!file_xyz_extension("typo2.yz"));
-  ck_assert(!file_xyz_extension("typo3.xz"));
-  ck_assert(!file_xyz_extension("wrong.sh"));
+  ck_assert(!check_file_extension("fail.xy", ".xyz"));
+  ck_assert(!check_file_extension("fail.xyz", ".sh"));
+  ck_assert(!check_file_extension("fail.lua", "c"));
 }
 END_TEST
 

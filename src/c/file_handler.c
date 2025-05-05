@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int file_xyz_extension(const char *file_name) {
+int check_file_extension(const char *file_name, const char *check_extension) {
   const char *extension = strrchr(file_name, '.');
-  return (extension != NULL && strcmp(extension, ".xyz") == 0);
+  return (extension != NULL && strcmp(extension, check_extension) == 0);
 }
