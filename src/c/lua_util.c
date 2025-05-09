@@ -5,36 +5,36 @@
 #include <stdio.h>
 
 void execute_lua(const char *script) {
-  lua_State *L = luaL_newstate(); // Create new lua state
-  luaL_openlibs(L);               // Open lua libraries
+	lua_State *L = luaL_newstate(); // Create new lua state
+	luaL_openlibs(L);				// Open lua libraries
 
-  if (luaL_dofile(L, script) != LUA_OK) {
-    fprintf(stderr, "Error running Lua script: %s\n", lua_tostring(L, -1));
-  }
+	if (luaL_dofile(L, script) != LUA_OK) {
+		fprintf(stderr, "Error running Lua script: %s\n", lua_tostring(L, -1));
+	}
 
-  // Only need to clear lua stack if leaving lua state open
-  // if (luaL_dofile(L, "src/help.lua") == LUA_OK) {
-  //  lua_pop(L, lua_gettop(L));
-  //}
+	// Only need to clear lua stack if leaving lua state open
+	// if (luaL_dofile(L, "src/help.lua") == LUA_OK) {
+	//  lua_pop(L, lua_gettop(L));
+	//}
 
-  lua_close(L);
+	lua_close(L);
 }
 
 void pass_argument_lua(const char *str, const char *global_var,
-                       const char *lua_path) {
-  lua_State *L = luaL_newstate();
-  luaL_openlibs(L);
+					   const char *lua_path) {
+	lua_State *L = luaL_newstate();
+	luaL_openlibs(L);
 
-  lua_pushstring(L, str);
-  lua_setglobal(L, global_var);
+	lua_pushstring(L, str);
+	lua_setglobal(L, global_var);
 
-  // Execute the Lua script
-  const char *lua_script = lua_path;
+	// Execute the Lua script
+	const char *lua_script = lua_path;
 
-  if (luaL_dofile(L, lua_script) != LUA_OK) {
-    fprintf(stderr, "Error passing argument to Lua script: %s\n",
-            lua_tostring(L, -1));
-  }
+	if (luaL_dofile(L, lua_script) != LUA_OK) {
+		fprintf(stderr, "Error passing argument to Lua script: %s\n",
+				lua_tostring(L, -1));
+	}
 
-  lua_close(L);
+	lua_close(L);
 }

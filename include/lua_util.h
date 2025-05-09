@@ -3,6 +3,6 @@
 
 void execute_lua(const char *script);
 void pass_argument_lua(const char *str, const char *global_var,
-                       const char *lua_path);
+					   const char *lua_path);
 
 #endif

@@ -14,7 +14,8 @@ def create_test_file(filename: str):
         return False
     base = filename.split(".")[0]
     with open(path, "w") as f:
-        _ = f.write(f"""#include "../include/{base}.h"
+        _ = f.write(
+            f"""#include "../include/{base}.h"
 #include <check.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -54,7 +55,8 @@ int main(void) {{
 
     return (failed == 0) ? 0 : 1;
 }}
-""")
+"""
+        )
     print(f"[+] Created test file: {filename}")
     return True
 
