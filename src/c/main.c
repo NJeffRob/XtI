@@ -45,15 +45,20 @@ int main(int argc, char *argv[]) {
 	else if (option[0] != '-') {
 		return error_fail_message("No options specified\n");
 	}
-	// Options argument has length of 2
-	else if (!is_valid_length(option, 2, 2)) {
+	// Options argument has length of 2 - 3
+	else if (!is_valid_length(option, 2, 3)) {
 		return error_fail_message("Invalid number of options\n");
 	}
-	// Argument contains only the characters 'i' or 'o'
+	// Argument contains only valid options ('i', 'o', 's')
 	for (int i = 1; option[i] != '\0'; i++) {
 		if (!is_valid_option(option[i])) {
 			return error_fail_message("Invalid options '%c'\n", option[i]);
 		}
+	}
+	// Option 's' can only be used if 'i' was used
+	if (strchr(option, 's') && !strchr(option, 'i')) {
+		printf("Error: Option 's' requires the option 'i'\n");
+		return FAILURE;
 	}
 
 	// Call lua API for valid options
@@ -62,6 +67,7 @@ int main(int argc, char *argv[]) {
 	// printing.
 	bool option_input = false;
 	bool option_output = false;
+	bool option_script = false;
 
 	for (int i = 1; option[i] != '\0'; i++) {
 		switch (option[i]) {
@@ -71,7 +77,8 @@ int main(int argc, char *argv[]) {
 		case 'o':
 			option_output = true;
 			break;
-		// valid -s, -si/is (unique from -i). invalid: -so
+		case 's':
+			option_script = true;
 		default:
 			break;
 		}
@@ -138,6 +145,10 @@ int main(int argc, char *argv[]) {
 				return error_fail_message("Invalid job type\n");
 			}
 		}
+        // Check if option s specified
+        if (option_script) {
+            printf("Script!\n");
+        }
 
 		// Check if .xyz file, (temporary). Should be called if option_i = true
 		if (!check_file_extension(file_name, ".xyz")) {

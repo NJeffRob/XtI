@@ -41,7 +41,23 @@ START_TEST(test_pass_input) {
 }
 END_TEST
 
+START_TEST(test_pass_input_script) {
+	build_command("-si orca freQ", VALID_INPUT_FILE);
+	int exit_code = run_command(commandLine);
+	ck_assert_msg(exit_code == 0, "Expected success, got exit code %d",
+				  exit_code);
+}
+END_TEST
+
 START_TEST(test_pass_default_job) {
+	build_command("-is gaMesS", VALID_INPUT_FILE);
+	int exit_code = run_command(commandLine);
+	ck_assert_msg(exit_code == 0, "Expected success, got exit code %d",
+				  exit_code);
+}
+END_TEST
+
+START_TEST(test_pass_default_job_and_script) {
 	build_command("-i gaMesS", VALID_INPUT_FILE);
 	int exit_code = run_command(commandLine);
 	ck_assert_msg(exit_code == 0, "Expected success, got exit code %d",
@@ -170,6 +186,28 @@ START_TEST(test_fail_missing_file) {
 }
 END_TEST
 
+START_TEST(test_fail_output_script) {
+	build_command("-os orca sp", VALID_OUTPUT_FILE);
+	int exit_code = run_command(commandLine);
+	ck_assert_msg(exit_code != 0,
+				  "Expected failure for using option 'o' with 's'");
+}
+END_TEST
+
+START_TEST(test_fail_s_input) {
+	build_command("-s orca freq", VALID_INPUT_FILE);
+	int exit_code = run_command(commandLine);
+	ck_assert_msg(exit_code != 0, "Expected failure for using 's' without 'i'");
+}
+END_TEST
+
+START_TEST(test_fail_s_output) {
+	build_command("-s orca", VALID_OUTPUT_FILE);
+	int exit_code = run_command(commandLine);
+	ck_assert_msg(exit_code != 0, "Expected failure for using 's' without 'i'");
+}
+END_TEST
+
 Suite *cli_suite(void) {
 	Suite *s = suite_create("cli");
 
@@ -179,7 +217,9 @@ Suite *cli_suite(void) {
 	tcase_add_test(tc_pass, test_pass_help);
 	tcase_add_test(tc_pass, test_pass_upper_help);
 	tcase_add_test(tc_pass, test_pass_input);
+	tcase_add_test(tc_pass, test_pass_input_script);
 	tcase_add_test(tc_pass, test_pass_default_job);
+	tcase_add_test(tc_pass, test_pass_default_job_and_script);
 	tcase_add_test(tc_pass, test_pass_output);
 
 	tcase_add_test(tc_fail, test_fail_invalid_output_file);
@@ -197,6 +237,9 @@ Suite *cli_suite(void) {
 	tcase_add_test(tc_fail, test_fail_invalid_program);
 	tcase_add_test(tc_fail, test_fail_invalid_job);
 	tcase_add_test(tc_fail, test_fail_missing_file);
+	tcase_add_test(tc_fail, test_fail_output_script);
+	tcase_add_test(tc_fail, test_fail_s_input);
+	tcase_add_test(tc_fail, test_fail_s_output);
 
 	suite_add_tcase(s, tc_pass);
 	suite_add_tcase(s, tc_fail);

@@ -7,7 +7,7 @@
 
 bool is_valid_option(char c) {
 	// Check if the option flag is -i for input, or -o for output
-	return (c == 'i' || c == 'o');
+	return (c == 'i' || c == 'o' || c == 's');
 }
 
 bool is_duplicate_option(const char *str) {
