@@ -25,8 +25,16 @@ START_TEST(test_pass_help) {
 }
 END_TEST
 
+START_TEST(test_pass_upper_help) {
+	build_command("-H", "");
+	int exit_code = run_command(commandLine);
+	ck_assert_msg(exit_code == 0, "Expected success, got exit code %d",
+				  exit_code);
+}
+END_TEST
+
 START_TEST(test_pass_input) {
-	build_command("-i orca freq", VALID_INPUT_FILE);
+	build_command("-i orca freQ", VALID_INPUT_FILE);
 	int exit_code = run_command(commandLine);
 	ck_assert_msg(exit_code == 0, "Expected success, got exit code %d",
 				  exit_code);
@@ -34,7 +42,7 @@ START_TEST(test_pass_input) {
 END_TEST
 
 START_TEST(test_pass_default_job) {
-	build_command("-i gamess", VALID_INPUT_FILE);
+	build_command("-i gaMesS", VALID_INPUT_FILE);
 	int exit_code = run_command(commandLine);
 	ck_assert_msg(exit_code == 0, "Expected success, got exit code %d",
 				  exit_code);
@@ -169,6 +177,7 @@ Suite *cli_suite(void) {
 	TCase *tc_fail = tcase_create("Fail");
 
 	tcase_add_test(tc_pass, test_pass_help);
+	tcase_add_test(tc_pass, test_pass_upper_help);
 	tcase_add_test(tc_pass, test_pass_input);
 	tcase_add_test(tc_pass, test_pass_default_job);
 	tcase_add_test(tc_pass, test_pass_output);
