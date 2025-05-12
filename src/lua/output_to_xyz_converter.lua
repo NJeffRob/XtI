@@ -1,5 +1,5 @@
 --[[
-Each output format is proprietary in some way; needs a separate function for each
+Each output format is "proprietary" in some way; needs a separate function for each
 ]]
 
 -- gaussian gives its atomic coordinates via number not atomic symbol :/
@@ -85,30 +85,15 @@ function orca_to_xyz(io_name, calc_type)
     print("XYZ coordinate file generated successfully.")
 end
 
--- abinit: in progress; going to be very tricky if not impossible. Figure it out later
-function abinit_to_xyz(io_name, calc_type)
-    
-end
-
--- gamess: in progress
+-- gamess: in progress (works for SP/freq); need to add separate logic for opt :/
 function gamess_to_xyz(io_name, calc_type)
-    --[[
-    Internuclear distances (Angs.)
-    H-O: 1.479 <- incorrect
-
-    Coordinates (Bohr)
-    H-O: 0.969 <- correct
-
-    Have to convert Bohr distances :/
-    --]]
-
-    ---[[
     local gamess_output_file = assert(io.open(io_name, "r"))
 
     local found = false
 
     local initial_coords = {}
     local cleanup_coords = {}
+    local xyz_coords = {}
 
     for line in gamess_output_file:lines() do
         if found then
@@ -117,7 +102,7 @@ function gamess_to_xyz(io_name, calc_type)
                 found = false
             end
         elseif string.match(line, "COORDINATES %(BOHR%)") then
-            found = true 
+            found = true
         end
     end
 
@@ -131,11 +116,22 @@ function gamess_to_xyz(io_name, calc_type)
     table.remove(cleanup_coords, 1) -- gets rid of first blank line for the following loop
     table.remove(cleanup_coords) -- removes last line for the following loop
 
-    --[[ need to: 
-        remove integers that are atomic coordinates;
-        convert remaining coordinates from Bohor to angstroms
-    --]]
+    -- remove annoying extra floating number; convert the coordinates to angstroms
+    for k, v in ipairs(cleanup_coords) do
+        local at0m_symbol = string.sub(v, 1, 2)
 
+        local atom_coord_x = tonumber(string.sub(v, 21, 34))
+        local atom_coord_y = tonumber(string.sub(v, 41, 53))
+        local atom_coord_z = tonumber(string.sub(v, 60, -1))
+
+        local ang_atom_coord_x = atom_coord_x * 0.529177249 
+        local ang_atom_coord_y = atom_coord_y * 0.529177249 
+        local ang_atom_coord_z = atom_coord_z * 0.529177249
+
+        local final_xyz_coords = at0m_symbol .. "    " .. ang_atom_coord_x .. "    " .. ang_atom_coord_y .. "    " .. ang_atom_coord_z
+
+        table.insert(xyz_coords, final_xyz_coords)
+    end
 
     local number_of_atoms = 0
 
@@ -158,19 +154,13 @@ function gamess_to_xyz(io_name, calc_type)
 
     local xyz_from_ouput = assert(io.open(io_name .. "-" .. calc_type .. ".xyz", "a"))
 
-    for _, v in ipairs(cleanup_coords) do
+    for _, v in ipairs(xyz_coords) do
         xyz_from_ouput:write(v .. "\n")
     end
 
     xyz_from_ouput:close()
 
     print("XYZ coordinate file generated successfully.")
-    --]]
-end
-
--- qe: in progress
-function qe_to_xyz(io_name, calc_type)
-    
 end
 
 -- fhiaims: works!
@@ -237,26 +227,6 @@ function fhiaims_to_xyz(io_name, calc_type)
     xyz_from_ouput:close()
 
     print("XYZ coordinate file generated successfully.")  
-end
-
--- qchem: in progress
-function qchem_to_xyz(io_name, calc_type)
-    
-end
-
--- siesta: in progress
-function siesta_to_xyz(io_name, calc_type)
-    
-end
-
--- vasp: in progress
-function vasp_to_xyz(io_name, calc_type)
-    
-end
-
--- castep: in progress
-function castep_to_xyz(io_name, calc_type)
-    
 end
 
 -- gaussian: works!
@@ -343,4 +313,4 @@ function guassian_to_xyz(io_name, calc_type)
     print("XYZ coordinate file generated successfully.")   
 end
 
-gamess_to_xyz("gamess-sp.out", "sp")
+gamess_to_xyz("gamess-sp.out", "")

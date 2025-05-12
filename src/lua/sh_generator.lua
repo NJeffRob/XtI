@@ -121,33 +121,3 @@ function gamess_sh(io_name, calc_type)
 
     print(".sh script generated successfully.")
 end
-
--- Abinit: in progress
-function abinit_sh(io_name, calc_type)
-    sh_generator(user_mail, account, ntasks, nodes, cpus_per_task, mem, mem_per_cpu, time, calc_type, io_name)
-
-    local abinit_sh = io.open(io_name .. "-" .. calc_type .. ".sh", "a")
-
-    io.write(
-        "write stuff"
-    )
-
-    io.close(abinit_sh)
-
-    print(".sh script generated successfully.")
-end
-
-
-function template_sh(io_name, calc_type)
-    sh_generator(user_mail, account, ntasks, nodes, cpus_per_task, mem, mem_per_cpu, time, calc_type, io_name)
-
-    local template_sh = assert(io.open(io_name .. "-" .. calc_type .. ".sh", "a"))
-
-    template_sh:write(
-        "write stuff"
-    )
-
-    template_sh:close()
-
-    print(".sh script generated successfully.")
-end
