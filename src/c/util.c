@@ -1,10 +1,26 @@
 #include "../../include/util.h"
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 
 void help_prompt(void) {
 	printf("Usage: xti -[options] [program] [job] [file...] \n"
 		   "Try 'xti -h' for help on getting started. \n");
+}
+
+char *convert_to_lower(char *str) {
+	// Take in argv and set to lower case
+	if (!str) {
+		return NULL;
+	}
+	char *copy = strdup(str);
+	if (!copy) {
+		return NULL;
+	}
+	for (char *p = copy; *p; p++) {
+		*p = tolower((unsigned char)*p);
+	}
+	return copy;
 }
 
 bool is_valid_length(const char *str, size_t min, size_t max) {

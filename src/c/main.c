@@ -1,6 +1,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "../../include/file_handler.h"
@@ -23,9 +24,10 @@ int error_fail_message(const char *message, ...);
 
 int main(int argc, char *argv[]) {
 	// Set argv constants
-	const char *option = argv[1];
-	const char *chemistry_program = argv[2];
-	const char *job_type;
+	char *option = convert_to_lower(argv[1]);
+	// const char *option = argv[1];
+	char *chemistry_program = convert_to_lower(argv[2]);
+	char *job_type;
 	const char *file_name = argv[argc - 1];
 
 	// Call option handling
@@ -43,15 +45,20 @@ int main(int argc, char *argv[]) {
 	else if (option[0] != '-') {
 		return error_fail_message("No options specified\n");
 	}
-	// Options argument has length of 2
-	else if (!is_valid_length(option, 2, 2)) {
+	// Options argument has length of 2 - 3
+	else if (!is_valid_length(option, 2, 3)) {
 		return error_fail_message("Invalid number of options\n");
 	}
-	// Argument contains only the characters 'i' or 'o'
+	// Argument contains only valid options ('i', 'o', 's')
 	for (int i = 1; option[i] != '\0'; i++) {
 		if (!is_valid_option(option[i])) {
 			return error_fail_message("Invalid options '%c'\n", option[i]);
 		}
+	}
+	// Option 's' can only be used if 'i' was used
+	if (strchr(option, 's') && !strchr(option, 'i')) {
+		printf("Error: Option 's' requires the option 'i'\n");
+		return FAILURE;
 	}
 
 	// Call lua API for valid options
@@ -60,6 +67,7 @@ int main(int argc, char *argv[]) {
 	// printing.
 	bool option_input = false;
 	bool option_output = false;
+	bool option_script = false;
 
 	for (int i = 1; option[i] != '\0'; i++) {
 		switch (option[i]) {
@@ -69,6 +77,8 @@ int main(int argc, char *argv[]) {
 		case 'o':
 			option_output = true;
 			break;
+		case 's':
+			option_script = true;
 		default:
 			break;
 		}
@@ -119,11 +129,14 @@ int main(int argc, char *argv[]) {
 	}
 	// option_input = true, set job_type if specified or default to "sp"
 	if (option_input) {
+		bool job_memory = false;
+
 		if (argc < 5) {
 			// Use default job_type
 			job_type = DEFAULT_JOB_TYPE; // Default job_type
 		} else {
-			job_type = argv[3];
+			job_type = convert_to_lower(argv[3]);
+			job_memory = true;
 			if (!is_valid_length(job_type, 2, 4)) {
 				return error_fail_message("Invalid job type\n");
 			}
@@ -132,6 +145,10 @@ int main(int argc, char *argv[]) {
 				return error_fail_message("Invalid job type\n");
 			}
 		}
+        // Check if option s specified
+        if (option_script) {
+            printf("Script!\n");
+        }
 
 		// Check if .xyz file, (temporary). Should be called if option_i = true
 		if (!check_file_extension(file_name, ".xyz")) {
@@ -144,11 +161,22 @@ int main(int argc, char *argv[]) {
 
 		// Pass job_type to Lua OR can execute_lua
 		pass_argument_lua(job_type, "JOB_TYPE", "examples/pass_argument.lua");
+		// Free memory from job_type if allocate
+		if (job_memory) {
+			free(job_type);
+		}
 	}
 
 	// Pass chemistry_program to Lua OR can execute_lua
 	pass_argument_lua(chemistry_program, "CHEMISTRY_PROGRAM",
 					  "examples/pass_argument.lua");
+	// Free memory from chemistry_program
+	free(chemistry_program);
+
+	// Pass file_name and path
+
+	// Free memory
+	free(option);
 
 	printf("Done!\n");
 	return SUCCESS;
