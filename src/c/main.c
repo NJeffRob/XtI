@@ -1,4 +1,7 @@
 #include <errno.h>
+#include <lauxlib.h>
+#include <lua.h>
+#include <lualib.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,6 +21,19 @@ const char *valid_program[] = {"abinit",   "gamess",  "qe",	   "orca",
 							   "gaussian", "fhiaims", "qchem", "siesta",
 							   "vasp",	   "castep"};
 
+/**
+typedef struct {
+	const char *program;
+	const char *lua_input_func; // for -i
+	const char *lua_output_func; // for -o
+	const char *lua_sh_func; // for -s
+} ProgramMap;
+
+ProgramMap programs[] = {
+	"abinit, "abinit_to_
+}
+**/ // i think we actually don't need a struct. I just call a function based on xyz_to_{}, or {}_to_xyz or {}_sh
+
 const char *valid_job[] = {"opt", "freq", "sp"};
 
 int error_fail_message(const char *message, ...);
@@ -30,6 +46,9 @@ int main(int argc, char *argv[]) {
 	char *job_type;
 	const char *file_name = argv[argc - 1];
 
+	lua_State *L = luaL_newstate(); // Create new lua state
+	luaL_openlibs(L);				// Open lua libraries
+
 	// Call option handling
 	char help[3] = "-h";
 	if (argc < 2 || argc > 5) {
@@ -38,7 +57,7 @@ int main(int argc, char *argv[]) {
 	if (strcmp(option, help) == SUCCESS) {
 		// Print the help message from the Lua file
 		// NOTE: LUA FILE IS NOT COMPILED WITH THE REST OF THE PROGRAM
-		execute_lua("src/lua/help.lua");
+		exec_lua_script(L, "src/lua/help.lua");
 		return SUCCESS;
 	}
 	// First character of the argument is '-'
@@ -145,10 +164,6 @@ int main(int argc, char *argv[]) {
 				return error_fail_message("Invalid job type\n");
 			}
 		}
-        // Check if option s specified
-        if (option_script) {
-            printf("Script!\n");
-        }
 
 		// Check if .xyz file, (temporary). Should be called if option_i = true
 		if (!check_file_extension(file_name, ".xyz")) {
@@ -156,11 +171,16 @@ int main(int argc, char *argv[]) {
 				"The file \"%s\" does not have a .xyz extension\n", file_name);
 		}
 
+		// Check if option s specified
+		if (option_script) {
+			printf("Generate script file\n");
+		}
+		// Input success
 		printf("Generate input file\n");
 		printf("Input success: \"%s\"\n", file_name);
 
 		// Pass job_type to Lua OR can execute_lua
-		pass_argument_lua(job_type, "JOB_TYPE", "examples/pass_argument.lua");
+		pass_argument_lua(L, job_type, "JOB_TYPE", "examples/pass_argument.lua");
 		// Free memory from job_type if allocate
 		if (job_memory) {
 			free(job_type);
@@ -168,12 +188,13 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Pass chemistry_program to Lua OR can execute_lua
-	pass_argument_lua(chemistry_program, "CHEMISTRY_PROGRAM",
+	pass_argument_lua(L, chemistry_program, "CHEMISTRY_PROGRAM",
 					  "examples/pass_argument.lua");
 	// Free memory from chemistry_program
 	free(chemistry_program);
 
 	// Pass file_name and path
+	pass_argument_lua(L, file_name, "FILE_PATH", "examples/pass_argument.lua");
 
 	// Free memory
 	free(option);

@@ -13,6 +13,7 @@ char *convert_to_lower(char *str) {
 	if (!str) {
 		return NULL;
 	}
+    // Duplicate the string (strdup uses malloc)
 	char *copy = strdup(str);
 	if (!copy) {
 		return NULL;
