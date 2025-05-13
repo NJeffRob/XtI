@@ -15,10 +15,10 @@
 #define SUCCESS 0
 #define FAILURE 1
 
-#define PATH_TO_HELP "src/lua/help.lua"
-// #define PATH_TO_INPUT "src/lua/xyz_to_input_converter.lua"
+#define PATH_TO_HELP  "src/lua/help.lua"
+#define PATH_TO_INPUT "src/lua/xyz_to_input_converter.lua"
 // #define PATH_TO_OUTPUT "src/lua/output_to_xyz_converter.lua"
-// #define PATH_TO_SH "src/lua/sh_generator.lua"
+#define PATH_TO_SH "src/lua/sh_generator.lua"
 
 #define DEFAULT_JOB_TYPE "sp"
 
@@ -91,6 +91,9 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
+	// Variable lua function to call
+	char lua_func[64];
+
 	// Check if program is defined in the chemistry_program array
 	if (!is_valid_length(chemistry_program, 2, 9)) {
 		return error_fail_message("Invalid program\n");
@@ -117,8 +120,7 @@ int main(int argc, char *argv[]) {
 
 	// option_output = true, then move to file handling
 	if (option_output) {
-		// Exit if incorrect number of arguments "xti -o chemistry_program
-		// file.ext"
+		// Exit if incorrect number of arguments
 		if (argc != 4) {
 			return error_fail_message("Wrong number of arguments for output\n");
 		}
@@ -160,15 +162,22 @@ int main(int argc, char *argv[]) {
 
 		// Check if option s specified
 		if (option_script) {
-			printf("Generate script file\n");
+			// Determine and call the appropriate lua function
+			snprintf(lua_func, sizeof(lua_func), "%s_sh", chemistry_program);
+			exec_lua_function(L, PATH_TO_SH, lua_func, file_path, job_type);
+			// Add in error handling
 		}
+
 		// Input success
-		printf("Generate input file\n");
-		printf("Input success: \"%s\"\n", file_path);
+		snprintf(lua_func, sizeof(lua_func), "xyz_to_%s", chemistry_program);
+		exec_lua_function(L, PATH_TO_INPUT, lua_func, file_path, job_type);
+		// Add in error handling
+
+		// printf("Generate input file\n");
+		// printf("Input success: \"%s\"\n", file_path);
 
 		// Pass job_type to Lua OR can execute_lua
-		pass_argument_lua(L, job_type, "JOB_TYPE",
-						  "examples/pass_argument.lua");
+
 		// Free memory from job_type if allocate
 		if (job_memory) {
 			free(job_type);
@@ -176,13 +185,11 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Pass chemistry_program to Lua OR can execute_lua
-	pass_argument_lua(L, chemistry_program, "CHEMISTRY_PROGRAM",
-					  "examples/pass_argument.lua");
+
 	// Free memory from chemistry_program
 	free(chemistry_program);
 
 	// Pass file_path
-	pass_argument_lua(L, file_path, "FILE_PATH", "examples/pass_argument.lua");
 
 	// Free memory from option
 	free(option);

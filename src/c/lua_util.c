@@ -13,8 +13,8 @@ void exec_lua_script(lua_State *L, const char *script) {
 }
 
 // Function to execute lua function within a .lua file
-void exec_lua_function(lua_State *L, const char *script, const char *func_name,
-					   int argc, const char *argv[]) {
+void exec_lua_function(lua_State *L, const char *script,
+					   const char *func_name, const char *arg1, const char *arg2) {
 	if (luaL_dofile(L, script) != LUA_OK) {
 		fprintf(stderr, "Error loading Lua script: %s\n", lua_tostring(L, -1));
 		lua_pop(L, 1);
@@ -27,12 +27,11 @@ void exec_lua_function(lua_State *L, const char *script, const char *func_name,
 		lua_pop(L, 1);
 		return;
 	}
-	// Push arguments onto lua stack
-	for (int i = 0; i < argc; i++) {
-		lua_pushstring(L, argv[i]);
-	}
+    // Push function arguments from C to Lua
+    lua_pushstring(L, arg1);  // io_name
+	lua_pushstring(L, arg2);  // calc_type
 	// Call lua function with arguments
-	if (lua_pcall(L, argc, 0, 0) != LUA_OK) {
+	if (lua_pcall(L, 2, 0, 0) != LUA_OK) {
 		fprintf(stderr, "Error running Lua function '%s': %s\n", func_name,
 				lua_tostring(L, -1));
 		lua_pop(L, 1);
@@ -41,16 +40,7 @@ void exec_lua_function(lua_State *L, const char *script, const char *func_name,
 
 // Deprecated
 // File to pass a variable into a .lua file
-void pass_argument_lua(lua_State *L, const char *str, const char *global_var,
-					   const char *lua_path) {
+void pass_argument_lua(lua_State *L, const char *str, const char *global_var) {
 	lua_pushstring(L, str);
 	lua_setglobal(L, global_var);
-	// Execute the Lua script
-	const char *lua_script = lua_path;
-
-	if (luaL_dofile(L, lua_script) != LUA_OK) {
-		fprintf(stderr, "Error passing argument to Lua script: %s\n",
-				lua_tostring(L, -1));
-		lua_pop(L, 1);
-	}
 }
