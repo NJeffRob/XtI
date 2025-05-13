@@ -15,24 +15,16 @@
 #define SUCCESS 0
 #define FAILURE 1
 
+#define PATH_TO_HELP "src/lua/help.lua"
+// #define PATH_TO_INPUT "src/lua/xyz_to_input_converter.lua"
+// #define PATH_TO_OUTPUT "src/lua/output_to_xyz_converter.lua"
+// #define PATH_TO_SH "src/lua/sh_generator.lua"
+
 #define DEFAULT_JOB_TYPE "sp"
 
 const char *valid_program[] = {"abinit",   "gamess",  "qe",	   "orca",
 							   "gaussian", "fhiaims", "qchem", "siesta",
 							   "vasp",	   "castep"};
-
-/**
-typedef struct {
-	const char *program;
-	const char *lua_input_func; // for -i
-	const char *lua_output_func; // for -o
-	const char *lua_sh_func; // for -s
-} ProgramMap;
-
-ProgramMap programs[] = {
-	"abinit, "abinit_to_
-}
-**/ // i think we actually don't need a struct. I just call a function based on xyz_to_{}, or {}_to_xyz or {}_sh
 
 const char *valid_job[] = {"opt", "freq", "sp"};
 
@@ -41,30 +33,29 @@ int error_fail_message(const char *message, ...);
 int main(int argc, char *argv[]) {
 	// Set argv constants
 	char *option = convert_to_lower(argv[1]);
-	// const char *option = argv[1];
 	char *chemistry_program = convert_to_lower(argv[2]);
 	char *job_type;
-	const char *file_name = argv[argc - 1];
+	const char *file_path = argv[argc - 1];
 
-	lua_State *L = luaL_newstate(); // Create new lua state
-	luaL_openlibs(L);				// Open lua libraries
+	// Create new lua state and open lua libraries
+	lua_State *L = luaL_newstate();
+	luaL_openlibs(L);
 
-	// Call option handling
+	// Go through various checks to see if command line options are valid
 	char help[3] = "-h";
 	if (argc < 2 || argc > 5) {
 		return error_fail_message("Wrong number of arguments\n");
 	}
 	if (strcmp(option, help) == SUCCESS) {
-		// Print the help message from the Lua file
-		// NOTE: LUA FILE IS NOT COMPILED WITH THE REST OF THE PROGRAM
-		exec_lua_script(L, "src/lua/help.lua");
+		// Print the help message
+		exec_lua_script(L, PATH_TO_HELP);
 		return SUCCESS;
 	}
 	// First character of the argument is '-'
 	else if (option[0] != '-') {
 		return error_fail_message("No options specified\n");
 	}
-	// Options argument has length of 2 - 3
+	// Options argument has length of 2 || 3
 	else if (!is_valid_length(option, 2, 3)) {
 		return error_fail_message("Invalid number of options\n");
 	}
@@ -80,10 +71,7 @@ int main(int argc, char *argv[]) {
 		return FAILURE;
 	}
 
-	// Call lua API for valid options
-	// Temporarily just prints out whichever options are valid
-	// Add another param, char *script, then execute_lua(script) instead of
-	// printing.
+	// Booleans to store options
 	bool option_input = false;
 	bool option_output = false;
 	bool option_script = false;
@@ -103,7 +91,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	// Call program handling
+	// Check if program is defined in the chemistry_program array
 	if (!is_valid_length(chemistry_program, 2, 9)) {
 		return error_fail_message("Invalid program\n");
 	}
@@ -113,17 +101,15 @@ int main(int argc, char *argv[]) {
 		return error_fail_message("Invalid program\n");
 	}
 
-	// Call file handling
-	FILE *file = fopen(file_name, "r");
-	// Check if file is valid and accessible
+	// Check if the file is valid by accessing
+	FILE *file = fopen(file_path, "r");
 	if (file == NULL) {
 		if (errno == ENOENT) {
-			printf("Error: File \"%s\" does not exist.\n", file_name);
+			printf("Error: File \"%s\" does not exist.\n", file_path);
 		} else if (errno == EACCES) {
-			printf("Error: Permission denied for file \"%s\".\n", file_name);
+			printf("Error: Permission denied for file \"%s\".\n", file_path);
 		} else {
-			perror("Error: cannot open file");
-			//      printf("Error: cannot open file");
+			printf("Error: cannot open file");
 		}
 		return FAILURE;
 	}
@@ -131,20 +117,21 @@ int main(int argc, char *argv[]) {
 
 	// option_output = true, then move to file handling
 	if (option_output) {
-		// Exit if too many arguments "xti -o chemistry_program file.ext"
+		// Exit if incorrect number of arguments "xti -o chemistry_program
+		// file.ext"
 		if (argc != 4) {
 			return error_fail_message("Wrong number of arguments for output\n");
 		}
 
-		// Check for valid file extensions
-		if (!check_file_extension(file_name, ".log")) {
+		// Valid file extensions for -o
+		if (!check_file_extension(file_path, ".log")) {
 			return error_fail_message(
 				"The file \"%s\" does not have a valid extension for outputs\n",
-				file_name);
+				file_path);
 		}
 
 		printf("Generate output file\n");
-		printf("Input success: \"%s\"\n", file_name);
+		printf("Input success: \"%s\"\n", file_path);
 	}
 	// option_input = true, set job_type if specified or default to "sp"
 	if (option_input) {
@@ -152,7 +139,7 @@ int main(int argc, char *argv[]) {
 
 		if (argc < 5) {
 			// Use default job_type
-			job_type = DEFAULT_JOB_TYPE; // Default job_type
+			job_type = DEFAULT_JOB_TYPE;
 		} else {
 			job_type = convert_to_lower(argv[3]);
 			job_memory = true;
@@ -166,9 +153,9 @@ int main(int argc, char *argv[]) {
 		}
 
 		// Check if .xyz file, (temporary). Should be called if option_i = true
-		if (!check_file_extension(file_name, ".xyz")) {
+		if (!check_file_extension(file_path, ".xyz")) {
 			return error_fail_message(
-				"The file \"%s\" does not have a .xyz extension\n", file_name);
+				"The file \"%s\" does not have a .xyz extension\n", file_path);
 		}
 
 		// Check if option s specified
@@ -177,10 +164,11 @@ int main(int argc, char *argv[]) {
 		}
 		// Input success
 		printf("Generate input file\n");
-		printf("Input success: \"%s\"\n", file_name);
+		printf("Input success: \"%s\"\n", file_path);
 
 		// Pass job_type to Lua OR can execute_lua
-		pass_argument_lua(L, job_type, "JOB_TYPE", "examples/pass_argument.lua");
+		pass_argument_lua(L, job_type, "JOB_TYPE",
+						  "examples/pass_argument.lua");
 		// Free memory from job_type if allocate
 		if (job_memory) {
 			free(job_type);
@@ -193,16 +181,20 @@ int main(int argc, char *argv[]) {
 	// Free memory from chemistry_program
 	free(chemistry_program);
 
-	// Pass file_name and path
-	pass_argument_lua(L, file_name, "FILE_PATH", "examples/pass_argument.lua");
+	// Pass file_path
+	pass_argument_lua(L, file_path, "FILE_PATH", "examples/pass_argument.lua");
 
-	// Free memory
+	// Free memory from option
 	free(option);
+
+	// Free memory from Lua
+	lua_close(L);
 
 	printf("Done!\n");
 	return SUCCESS;
 }
 
+// Fail out gracefully and give help message
 int error_fail_message(const char *message, ...) {
 	va_list args;
 	va_start(args, message);
