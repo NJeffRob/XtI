@@ -85,7 +85,7 @@ function orca_to_xyz(io_name, calc_type)
     print("XYZ coordinate file generated successfully.")
 end
 
--- gamess: in progress (works for SP/freq); need to add separate logic for opt :/
+-- gamess: works!
 function gamess_to_xyz(io_name, calc_type)
     local gamess_output_file = assert(io.open(io_name, "r"))
 
@@ -94,15 +94,29 @@ function gamess_to_xyz(io_name, calc_type)
     local initial_coords = {}
     local cleanup_coords = {}
     local xyz_coords = {}
+    local real_xyz_coords = {}
 
-    for line in gamess_output_file:lines() do
-        if found then
-            table.insert(initial_coords, line)
-            if line == "" then
-                found = false
+    if calc_type == "opt" then
+        for line in gamess_output_file:lines() do
+            if found then
+                table.insert(initial_coords, line)
+                if string.match(line, "INTERNUCLEAR DISTANCES %(ANGS.%)") then
+                    found = false
+                end
+            elseif string.match(line, "COORDINATES OF ALL ATOMS ARE %(ANGS%)") then
+                found = true
             end
-        elseif string.match(line, "COORDINATES %(BOHR%)") then
-            found = true
+        end
+    else
+        for line in gamess_output_file:lines() do
+            if found then
+                table.insert(initial_coords, line)
+                if line == "" then
+                    found = false
+                end
+            elseif string.match(line, "COORDINATES %(BOHR%)") then
+                found = true
+            end
         end
     end
 
@@ -113,29 +127,53 @@ function gamess_to_xyz(io_name, calc_type)
         table.insert(cleanup_coords, initial_coords[i])
     end
 
-    table.remove(cleanup_coords, 1) -- gets rid of first blank line for the following loop
-    table.remove(cleanup_coords) -- removes last line for the following loop
+    if calc_type == "opt" then
+        table.remove(cleanup_coords, 1) -- remove first line
 
-    -- remove annoying extra floating number; convert the coordinates to angstroms
-    for k, v in ipairs(cleanup_coords) do
-        local at0m_symbol = string.sub(v, 1, 2)
+        -- stop copying coords after the first set of coords
+        for k, _ in ipairs(cleanup_coords) do 
+            table.insert(xyz_coords, cleanup_coords[k])
+            if string.match(cleanup_coords[k], "%-%-") then
+                table.remove(xyz_coords, k)
+                break
+            end
+        end
 
-        local atom_coord_x = tonumber(string.sub(v, 21, 34))
-        local atom_coord_y = tonumber(string.sub(v, 41, 53))
-        local atom_coord_z = tonumber(string.sub(v, 60, -1))
+        -- regular opt coords are in angstroms; idk why it's different for sp/freq
+        for k, v in ipairs(xyz_coords) do
+            local at0m_symbol = string.sub(v, 1, 2)
 
-        local ang_atom_coord_x = atom_coord_x * 0.529177249 
-        local ang_atom_coord_y = atom_coord_y * 0.529177249 
-        local ang_atom_coord_z = atom_coord_z * 0.529177249
+            local at0m_coords = string.sub(v, 8, -1)
 
-        local final_xyz_coords = at0m_symbol .. "    " .. ang_atom_coord_x .. "    " .. ang_atom_coord_y .. "    " .. ang_atom_coord_z
+            local final_xyz_coords = at0m_symbol .. "    " .. at0m_coords
 
-        table.insert(xyz_coords, final_xyz_coords)
+            table.insert(real_xyz_coords, final_xyz_coords)
+        end
+    else
+        table.remove(cleanup_coords, 1) -- gets rid of first blank line for the following loop
+        table.remove(cleanup_coords) -- removes last line for the following loop
+
+        -- remove annoying extra floating number; convert the coordinates to angstroms
+        for k, v in ipairs(cleanup_coords) do
+            local at0m_symbol = string.sub(v, 1, 2)
+
+            local atom_coord_x = tonumber(string.sub(v, 21, 34))
+            local atom_coord_y = tonumber(string.sub(v, 41, 53))
+            local atom_coord_z = tonumber(string.sub(v, 60, -1))
+
+            local ang_atom_coord_x = atom_coord_x * 0.529177249 
+            local ang_atom_coord_y = atom_coord_y * 0.529177249 
+            local ang_atom_coord_z = atom_coord_z * 0.529177249
+
+            local final_xyz_coords = at0m_symbol .. "    " .. ang_atom_coord_x .. "    " .. ang_atom_coord_y .. "    " .. ang_atom_coord_z
+
+            table.insert(xyz_coords, final_xyz_coords)
+        end
     end
 
     local number_of_atoms = 0
 
-    for k, _ in ipairs(cleanup_coords) do
+    for k, _ in ipairs(xyz_coords) do
         number_of_atoms = k
     end
 
@@ -154,8 +192,14 @@ function gamess_to_xyz(io_name, calc_type)
 
     local xyz_from_ouput = assert(io.open(io_name .. "-" .. calc_type .. ".xyz", "a"))
 
-    for _, v in ipairs(xyz_coords) do
-        xyz_from_ouput:write(v .. "\n")
+    if calc_type == "opt" then
+        for _, v in ipairs(real_xyz_coords) do
+            xyz_from_ouput:write(v .. "\n")
+        end
+    else
+        for _, v in ipairs(xyz_coords) do
+            xyz_from_ouput:write(v .. "\n")
+        end
     end
 
     xyz_from_ouput:close()
@@ -312,5 +356,3 @@ function guassian_to_xyz(io_name, calc_type)
 
     print("XYZ coordinate file generated successfully.")   
 end
-
-gamess_to_xyz("gamess-sp.out", "")
