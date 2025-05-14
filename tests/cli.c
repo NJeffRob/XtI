@@ -73,6 +73,14 @@ START_TEST(test_pass_output) {
 }
 END_TEST
 
+START_TEST(test_pass_output_job) {
+	build_command("-o orca freq", VALID_OUTPUT_FILE);
+	int exit_code = run_command(commandLine);
+	ck_assert_msg(exit_code == 0, "Expected success, got exit code %d",
+				  exit_code);
+}
+END_TEST
+
 START_TEST(test_fail_invalid_output_file) {
 	build_command("-o fhiaims", VALID_INPUT_FILE);
 	int exit_code = run_command(commandLine);
@@ -150,14 +158,6 @@ START_TEST(test_fail_simultaneous_in_out) {
 }
 END_TEST
 
-START_TEST(test_fail_output_with_job) {
-	build_command("-o orca freq", VALID_INPUT_FILE);
-	int exit_code = run_command(commandLine);
-	ck_assert_msg(exit_code != 0,
-				  "Expected failure for using job with output flag");
-}
-END_TEST
-
 START_TEST(test_fail_invalid_options) {
 	build_command("-sj orca freq", VALID_INPUT_FILE);
 	int exit_code = run_command(commandLine);
@@ -221,6 +221,7 @@ Suite *cli_suite(void) {
 	tcase_add_test(tc_pass, test_pass_default_job);
 	tcase_add_test(tc_pass, test_pass_default_job_and_script);
 	tcase_add_test(tc_pass, test_pass_output);
+	tcase_add_test(tc_pass, test_pass_output_job);
 
 	tcase_add_test(tc_fail, test_fail_invalid_output_file);
 	tcase_add_test(tc_fail, test_fail_invalid_input_file);
@@ -232,7 +233,6 @@ Suite *cli_suite(void) {
 	tcase_add_test(tc_fail, test_fail_no_hyphen_simultaneous);
 	tcase_add_test(tc_fail, test_fail_no_options_otherwise_valid);
 	tcase_add_test(tc_fail, test_fail_simultaneous_in_out);
-	tcase_add_test(tc_fail, test_fail_output_with_job);
 	tcase_add_test(tc_fail, test_fail_invalid_options);
 	tcase_add_test(tc_fail, test_fail_invalid_program);
 	tcase_add_test(tc_fail, test_fail_invalid_job);
