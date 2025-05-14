@@ -8,21 +8,47 @@ XtI is a command line too to generate input files from XYZ coordinate files for 
 
 Please see [Contributing](#contributing) if you'd like to get involved.
 
+
 ## Table of Contents
 - [About](#about)
 - [Dependencies](#dependencies)
 - [Testing](#testing)
+- [Installation](#installation)
 - [Use](#use)
 - [Examples](#examples)
 - [Contributing](#contributing)
 
+
 ### About
+DFT has become a crucial tool for calculating reaction pathways, predicting spectral properties, and analyzing molecular properties. Despite its prevalence, the manual process of generating input files for DFT calculations remains cumbersome and time-consuming. This leaves researchers to manage file conversions and submissions manually, wasting valuable time that could be spent on other tasks. To address this, we present XYZ to Input (XtI), a command-line tool designed to streamline the generation of input files for molecular DFT calculations. XtI is compatible with three major operating systems (Linux, MacOS, Windows) and emphasizes ease of use and portability. The program is readily compiled via a Makefile, and aims to reduce the time and effort spent on generating input files.
 
 
 ### Dependencies
-The raw code for this project was written in Lua 5.4.7, without the use of other dependencies. Executables can be found... 
+XtI was written in Lua 5.4.7 and C... Due to the use of `<const>` in the Lua code, Lua 5.4 is required as a minimum.
 
-It is recommended that XtI be downloaded as an executable and added to the users path. To do this... You can then use the program from whatever directory you like.
+_Lawrence please add C specific things here_
+
+
+### Installation
+It is recommended that XtI be compiled and added to the users path:
+
+_We should test this as best as we can on linux; idk how the makefile works but if it relies on gcc we should note that in the dependencies_
+
+#### Linux
+1. Download XtI into a folder of your choosing. We recommend `~/.local/share/applications` or `~/.local/share/bin`. Note that you may have to create the latter depending on your distribution. 
+2. Run `make` to install XtI, and `make test` to ensure it's functioning properly.
+3. Once installed, add the following to your `~/.bashrc` file: `export PATH=$PATH:/path/to/xti`
+
+#### macOS
+1. Download XtI into a folder of your choosing.
+2. Run `make` to install XtI, and `make test` to ensure it's functioning properly.
+3. Once installed, add the following to your `/etc/paths` file: `/path/to/xti`
+
+#### Windows
+1. Download XtI into a folder of your choosing.
+2. Run `make` to install XtI, and `make test` to ensure it's functioning properly.
+3. Once installed, the following guide will be helpful to add it to your path: [Add to the PATH on Windows 10 and Windows 11](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/)
+
 
 ### Testing
 Integration tests on C input handling with the [Check](https://libcheck.github.io/check/).
@@ -33,15 +59,32 @@ Run `make` and `make test`
 
 The file `scripts/generate_test.py` will automatically create the boilerplate for a C test and update the Makefile. The script can be ran with `python3 scripts/generate_test.py <test_name>.c`
 
+
 ### Use
 XtI comes with the following options:
-- bleh
-- blagh
-- bloo
 
-into the command line. This will prompt the user with some questions pertaining to their [ORCA](https://pubs.aip.org/aip/jcp/article/152/22/224108/1061982/The-ORCA-quantum-chemistry-program-package) job, and then ask if the user wants to set custom parameters or use some defaults. **Note: your molecule name has to be the same as what you've titled your xyz file.**
+- `-i`: Specifies generation of an input file from an XYZ file.
+- `-o`: Specifies generation of an XYZ file from an output file.
+- `-s`: Generates a job submission script for submitting calculations to a scheduler.
+- `-h`: Displays a help message on how to use the program.
 
-The default parameters are as follows:
+XtI can be used as follows:
+
+`xti [options] [quantum chemistry program] [job type] [file]`
+
+By default, XtI will assume the `[job type]` parameter is "single point" (sp). The other options for it are "opt" or "freq". 
+
+The currently supported list of `[programs]` can be seen in the table below. Their usage is demonstrated in brackets.
+
+|         Electronic Structure Program           |
+|--------------------|
+| 		ORCA (`orca`)                    |
+|       Gaussian16 (`gaussian`)           |
+|       FHI-aims (`fhiaims`)             |
+|       Gamess (US) (`gamess`)     |
+
+XtI allows for custom or defaults for the input files generated. The default parameters are as follows:
+
 | Parameter   | Default     |
 | ----------- | ----------- |
 | Functional  | PBE0        |
@@ -52,15 +95,47 @@ The default parameters are as follows:
 | charge      | 0           |
 | mult        | 1           |
 
-These defaults were chosen with molecular geometries in mind (sorry materials folks). You can of course specify custom inputs instead should you need something more specific, or modify the defaults as you wish. **Note that for both the default and the custom version, the user will have to specify their DRAC account.**
+These defaults were chosen with molecular geometries in mind. You can modify these defaults by changing the constants in the `output_to_xyz_converter`, `sh_generator` and/or `xyz_to_input_converter` Lua files. Of note, you'll have to change some of the defaults to add in your user account if you're planning on using this on a High Performance Cluster.
 
-Custom parameters are anything the user specifies. **If your input contains gibberish, the output will be gibberish. There are no checks that the user has input something sensible. Always double check your inputs.**
+It is encouraged that you double check that your initial files are correct before using the script repeatedly.
 
-Whether the user selects custom (c) or default (d), the script will output two files: a submission shell script for the [Digital Research Alliance of Canada](https://docs.alliancecan.ca/wiki/Technical_documentation), and a .inp file that contains relevant ORCA code. It is encouraged that you double check that these files are both correct before you submit further jobs.
 
 ### Examples
+1. Generate an ORCA input file (.inp) and submission script (.sh) from a .xyz coordinate file of water:
+
+```
+input: xti -is orca water.xyz
+output: water.inp, water.sh
+```
+
+2. Generate a .xyz coordinate file from a Gaussian output (.log) file of water:
+
+```
+input: xti -o gaussian water.log
+output: water.xyz
+```
+
+3. Generate a submission script (.sh) for FHI-AIMS for a file called water:
+
+```
+input: xti -s fhiaims water
+output: water.sh
+```
+
+4. Generate a Gaussian frequency calculation input (.gjf) and submission script (.sh) from a .xyz coordinate file of water:
+
+```
+input: xti -si gaussian freq water.xyz
+output: water-freq.gjf, water-freq.sh
+```
+
 
 ### Contributing
+If you'd like to contribute to XtI, please feel free! If you're unsure how to contribute, the following are things that would be helpful:
+
+1. Adding more electronic structure programs.
+2. Adding more input options for existing programs.
+3. If you use XtI and encounter a bug, please report it to us.
 
 
 # To dos
