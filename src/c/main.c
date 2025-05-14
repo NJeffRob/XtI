@@ -118,56 +118,49 @@ int main(int argc, char *argv[]) {
 	}
 	fclose(file);
 
-	// option_output = true, then move to file handling
-	if (option_output) {
-		// Exit if incorrect number of arguments
-		if (argc != 4) {
-			return error_fail_message("Wrong number of arguments for output\n");
+	// Set to true if the calc_type is specified to later free memory
+	bool calc_memory = false;
+	// Check if calc_type is specified, and if not then set to default
+	if (argc < 5) {
+		// Use default calc_type
+		calc_type = DEFAULT_CALC_TYPE;
+	} else {
+		calc_memory = true;
+		calc_type = convert_to_lower(argv[3]);
+		if (!is_valid_length(calc_type, 2, 4)) {
+			return error_fail_message("Invalid calc type\n");
 		}
+		// Check if the argument is in the static array
+		else if (!match_str(calc_type, valid_calc, sizeof(valid_calc))) {
+			return error_fail_message("Invalid calc type\n");
+		}
+	}
 
+	// -o: Check for file extension
+	if (option_output) {
 		// Valid file extensions for -o
 		if (!check_file_extension(file_path, ".log")) {
 			return error_fail_message(
 				"The file \"%s\" does not have a valid extension for outputs\n",
 				file_path);
 		}
-
 		printf("Generate output file\n");
 		printf("Input success: \"%s\"\n", file_path);
 	}
-	// option_input = true, set calc_type if specified or default to "sp"
+	// -i: Check for file extension and if -s was specified
 	if (option_input) {
-		bool calc_memory = false;
-
-		if (argc < 5) {
-			// Use default calc_type
-			calc_type = DEFAULT_CALC_TYPE;
-		} else {
-			calc_type = convert_to_lower(argv[3]);
-			calc_memory = true;
-			if (!is_valid_length(calc_type, 2, 4)) {
-				return error_fail_message("Invalid calc type\n");
-			}
-			// Check if string is in the static array
-			else if (!match_str(calc_type, valid_calc, sizeof(valid_calc))) {
-				return error_fail_message("Invalid calc type\n");
-			}
-		}
-
 		// Check if .xyz file, (temporary). Should be called if option_i = true
 		if (!check_file_extension(file_path, ".xyz")) {
 			return error_fail_message(
 				"The file \"%s\" does not have a .xyz extension\n", file_path);
 		}
-
-		// Check if option s specified
+		// Option s specified
 		if (option_script) {
 			// Determine and call the appropriate lua function
 			snprintf(lua_func, sizeof(lua_func), "%s_sh", chemistry_program);
 			exec_lua_function(L, PATH_TO_SH, lua_func, file_path, calc_type);
 			// Add in error handling for exec_lua_function
 		}
-
 		// Input success
 		snprintf(lua_func, sizeof(lua_func), "xyz_to_%s", chemistry_program);
 		exec_lua_function(L, PATH_TO_INPUT, lua_func, file_path, calc_type);
@@ -177,27 +170,22 @@ int main(int argc, char *argv[]) {
 		// printf("Input success: \"%s\"\n", file_path);
 
 		// Pass calc_type to Lua OR can execute_lua
-
-		// Free memory from calc_type if allocate
-		if (calc_memory) {
-			free(calc_type);
-		}
 	}
 
 	// Pass chemistry_program to Lua OR can execute_lua
 
-	// Free memory from chemistry_program
-	free(chemistry_program);
-
 	// Pass file_path
 
-	// Free memory from option
+	// Free memory of option, chemistry_program, calc_type and Lua
 	free(option);
-
-	// Free memory from Lua
+	free(chemistry_program);
+	if (calc_memory) {
+		free(calc_type);
+	}
 	lua_close(L);
 
-	printf("Done!\n");
+	// Signal completion
+	printf("Success! XtI\n");
 	return SUCCESS;
 }
 
