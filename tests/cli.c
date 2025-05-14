@@ -49,7 +49,7 @@ START_TEST(test_pass_input_script) {
 }
 END_TEST
 
-START_TEST(test_pass_default_job) {
+START_TEST(test_pass_default_calc) {
 	build_command("-is gaMesS", VALID_INPUT_FILE);
 	int exit_code = run_command(commandLine);
 	ck_assert_msg(exit_code == 0, "Expected success, got exit code %d",
@@ -57,7 +57,7 @@ START_TEST(test_pass_default_job) {
 }
 END_TEST
 
-START_TEST(test_pass_default_job_and_script) {
+START_TEST(test_pass_default_calc_and_script) {
 	build_command("-i gaMesS", VALID_INPUT_FILE);
 	int exit_code = run_command(commandLine);
 	ck_assert_msg(exit_code == 0, "Expected success, got exit code %d",
@@ -73,7 +73,7 @@ START_TEST(test_pass_output) {
 }
 END_TEST
 
-START_TEST(test_pass_output_job) {
+START_TEST(test_pass_output_calc) {
 	build_command("-o orca freq", VALID_OUTPUT_FILE);
 	int exit_code = run_command(commandLine);
 	ck_assert_msg(exit_code == 0, "Expected success, got exit code %d",
@@ -172,10 +172,10 @@ START_TEST(test_fail_invalid_program) {
 }
 END_TEST
 
-START_TEST(test_fail_invalid_job) {
-	build_command("-i orca job", VALID_INPUT_FILE);
+START_TEST(test_fail_invalid_calc) {
+	build_command("-i orca calc", VALID_INPUT_FILE);
 	int exit_code = run_command(commandLine);
-	ck_assert_msg(exit_code != 0, "Expected failure for invalid job type");
+	ck_assert_msg(exit_code != 0, "Expected failure for invalid calc type");
 }
 END_TEST
 
@@ -218,10 +218,10 @@ Suite *cli_suite(void) {
 	tcase_add_test(tc_pass, test_pass_upper_help);
 	tcase_add_test(tc_pass, test_pass_input);
 	tcase_add_test(tc_pass, test_pass_input_script);
-	tcase_add_test(tc_pass, test_pass_default_job);
-	tcase_add_test(tc_pass, test_pass_default_job_and_script);
+	tcase_add_test(tc_pass, test_pass_default_calc);
+	tcase_add_test(tc_pass, test_pass_default_calc_and_script);
 	tcase_add_test(tc_pass, test_pass_output);
-	tcase_add_test(tc_pass, test_pass_output_job);
+	tcase_add_test(tc_pass, test_pass_output_calc);
 
 	tcase_add_test(tc_fail, test_fail_invalid_output_file);
 	tcase_add_test(tc_fail, test_fail_invalid_input_file);
@@ -235,7 +235,7 @@ Suite *cli_suite(void) {
 	tcase_add_test(tc_fail, test_fail_simultaneous_in_out);
 	tcase_add_test(tc_fail, test_fail_invalid_options);
 	tcase_add_test(tc_fail, test_fail_invalid_program);
-	tcase_add_test(tc_fail, test_fail_invalid_job);
+	tcase_add_test(tc_fail, test_fail_invalid_calc);
 	tcase_add_test(tc_fail, test_fail_missing_file);
 	tcase_add_test(tc_fail, test_fail_output_script);
 	tcase_add_test(tc_fail, test_fail_s_input);

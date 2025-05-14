@@ -1,9 +1,5 @@
 #include "../../include/option_handler.h"
-#include "../../include/lua_util.h"
-#include "../../include/util.h"
 #include <stdbool.h>
-#include <stdio.h>
-#include <string.h>
 
 bool is_valid_option(char c) {
 	// Check if the option flag is -i for input, or -o for output

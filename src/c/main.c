@@ -20,13 +20,13 @@
 // #define PATH_TO_OUTPUT "src/lua/output_to_xyz_converter.lua"
 #define PATH_TO_SH "src/lua/sh_generator.lua"
 
-#define DEFAULT_JOB_TYPE "sp"
+#define DEFAULT_CALC_TYPE "sp"
 
 const char *valid_program[] = {"abinit",   "gamess",  "qe",	   "orca",
 							   "gaussian", "fhiaims", "qchem", "siesta",
 							   "vasp",	   "castep"};
 
-const char *valid_job[] = {"opt", "freq", "sp"};
+const char *valid_calc[] = {"opt", "freq", "sp"};
 
 int error_fail_message(const char *message, ...);
 
@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
 	// Set argv constants
 	char *option = convert_to_lower(argv[1]);
 	char *chemistry_program = convert_to_lower(argv[2]);
-	char *job_type;
+	char *calc_type;
 	const char *file_path = argv[argc - 1];
 
 	// Create new lua state and open lua libraries
@@ -135,22 +135,22 @@ int main(int argc, char *argv[]) {
 		printf("Generate output file\n");
 		printf("Input success: \"%s\"\n", file_path);
 	}
-	// option_input = true, set job_type if specified or default to "sp"
+	// option_input = true, set calc_type if specified or default to "sp"
 	if (option_input) {
-		bool job_memory = false;
+		bool calc_memory = false;
 
 		if (argc < 5) {
-			// Use default job_type
-			job_type = DEFAULT_JOB_TYPE;
+			// Use default calc_type
+			calc_type = DEFAULT_CALC_TYPE;
 		} else {
-			job_type = convert_to_lower(argv[3]);
-			job_memory = true;
-			if (!is_valid_length(job_type, 2, 4)) {
-				return error_fail_message("Invalid job type\n");
+			calc_type = convert_to_lower(argv[3]);
+			calc_memory = true;
+			if (!is_valid_length(calc_type, 2, 4)) {
+				return error_fail_message("Invalid calc type\n");
 			}
 			// Check if string is in the static array
-			else if (!match_str(job_type, valid_job, sizeof(valid_job))) {
-				return error_fail_message("Invalid job type\n");
+			else if (!match_str(calc_type, valid_calc, sizeof(valid_calc))) {
+				return error_fail_message("Invalid calc type\n");
 			}
 		}
 
@@ -164,23 +164,23 @@ int main(int argc, char *argv[]) {
 		if (option_script) {
 			// Determine and call the appropriate lua function
 			snprintf(lua_func, sizeof(lua_func), "%s_sh", chemistry_program);
-			exec_lua_function(L, PATH_TO_SH, lua_func, file_path, job_type);
-			// Add in error handling
+			exec_lua_function(L, PATH_TO_SH, lua_func, file_path, calc_type);
+			// Add in error handling for exec_lua_function
 		}
 
 		// Input success
 		snprintf(lua_func, sizeof(lua_func), "xyz_to_%s", chemistry_program);
-		exec_lua_function(L, PATH_TO_INPUT, lua_func, file_path, job_type);
+		exec_lua_function(L, PATH_TO_INPUT, lua_func, file_path, calc_type);
 		// Add in error handling
 
 		// printf("Generate input file\n");
 		// printf("Input success: \"%s\"\n", file_path);
 
-		// Pass job_type to Lua OR can execute_lua
+		// Pass calc_type to Lua OR can execute_lua
 
-		// Free memory from job_type if allocate
-		if (job_memory) {
-			free(job_type);
+		// Free memory from calc_type if allocate
+		if (calc_memory) {
+			free(calc_type);
 		}
 	}
 

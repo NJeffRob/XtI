@@ -40,5 +40,6 @@ bool match_str(const char *str, const char *static_array[], size_t array_size) {
 			return true;
 		}
 	}
-	return false; // If no match is found
+	// If no match is found
+	return false;
 }
