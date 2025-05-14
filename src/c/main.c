@@ -15,10 +15,10 @@
 #define SUCCESS 0
 #define FAILURE 1
 
-#define PATH_TO_HELP  "src/lua/help.lua"
-#define PATH_TO_INPUT "src/lua/xyz_to_input_converter.lua"
-// #define PATH_TO_OUTPUT "src/lua/output_to_xyz_converter.lua"
-#define PATH_TO_SH "src/lua/sh_generator.lua"
+#define PATH_TO_HELP   "src/lua/help.lua"
+#define PATH_TO_INPUT  "src/lua/xyz_to_input_converter.lua"
+#define PATH_TO_OUTPUT "src/lua/output_to_xyz_converter.lua"
+#define PATH_TO_SH	   "src/lua/sh_generator.lua"
 
 #define DEFAULT_CALC_TYPE "sp"
 
@@ -144,8 +144,12 @@ int main(int argc, char *argv[]) {
 				"The file \"%s\" does not have a valid extension for outputs\n",
 				file_path);
 		}
-		printf("Generate output file\n");
-		printf("Input success: \"%s\"\n", file_path);
+		// Call the appropriate function based on command line arguments
+		snprintf(lua_func, sizeof(lua_func), "%s_to_xyz", chemistry_program);
+		exec_lua_function(L, PATH_TO_OUTPUT, lua_func, file_path, calc_type);
+
+		//		printf("Generate output file\n");
+		//		printf("Input success: \"%s\"\n", file_path);
 	}
 	// -i: Check for file extension and if -s was specified
 	if (option_input) {
@@ -161,20 +165,14 @@ int main(int argc, char *argv[]) {
 			exec_lua_function(L, PATH_TO_SH, lua_func, file_path, calc_type);
 			// Add in error handling for exec_lua_function
 		}
-		// Input success
+		// Call the appropriate function based on command line arguments
 		snprintf(lua_func, sizeof(lua_func), "xyz_to_%s", chemistry_program);
 		exec_lua_function(L, PATH_TO_INPUT, lua_func, file_path, calc_type);
 		// Add in error handling
 
 		// printf("Generate input file\n");
 		// printf("Input success: \"%s\"\n", file_path);
-
-		// Pass calc_type to Lua OR can execute_lua
 	}
-
-	// Pass chemistry_program to Lua OR can execute_lua
-
-	// Pass file_path
 
 	// Free memory of option, chemistry_program, calc_type and Lua
 	free(option);
