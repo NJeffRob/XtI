@@ -1,7 +1,5 @@
 #include "../include/file_handler.h"
 #include <check.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 START_TEST(test_pass_xyz) {
 	ck_assert(check_file_extension("pass.xyz", ".xyz"));

@@ -22,10 +22,7 @@
 
 #define DEFAULT_CALC_TYPE "sp"
 
-const char *valid_program[] = {"abinit",   "gamess",  "qe",	   "orca",
-							   "gaussian", "fhiaims", "qchem", "siesta",
-							   "vasp",	   "castep"};
-
+const char *valid_program[] = {"gamess", "orca", "gaussian", "fhiaims"};
 const char *valid_calc[] = {"opt", "freq", "sp"};
 
 int error_fail_message(const char *message, ...);
@@ -44,7 +41,7 @@ int main(int argc, char *argv[]) {
 	// Go through various checks to see if command line options are valid
 	char help[3] = "-h";
 	if (argc < 2 || argc > 5) {
-		return error_fail_message("Wrong number of arguments\n");
+		return error_fail_message("Invalid number of arguments\n");
 	}
 	if (strcmp(option, help) == SUCCESS) {
 		// Print the help message
@@ -53,7 +50,7 @@ int main(int argc, char *argv[]) {
 	}
 	// First character of the argument is '-'
 	else if (option[0] != '-') {
-		return error_fail_message("No options specified\n");
+		return error_fail_message("No option argument specified\n");
 	}
 	// Options argument has length of 2 || 3
 	else if (!is_valid_length(option, 2, 3)) {
@@ -62,13 +59,13 @@ int main(int argc, char *argv[]) {
 	// Argument contains only valid options ('i', 'o', 's')
 	for (int i = 1; option[i] != '\0'; i++) {
 		if (!is_valid_option(option[i])) {
-			return error_fail_message("Invalid options '%c'\n", option[i]);
+			return error_fail_message("Invalid option '%c' specified\n",
+									  option[i]);
 		}
 	}
 	// Option 's' can only be used if 'i' was used
 	if (strchr(option, 's') && !strchr(option, 'i')) {
-		printf("Error: Option 's' requires the option 'i'\n");
-		return FAILURE;
+		return error_fail_message("Option 's' requires the option 'i'\n");
 	}
 
 	// Booleans to store options
@@ -96,23 +93,23 @@ int main(int argc, char *argv[]) {
 
 	// Check if program is defined in the chemistry_program array
 	if (!is_valid_length(chemistry_program, 2, 9)) {
-		return error_fail_message("Invalid program\n");
+		return error_fail_message("Invalid program argument\n");
 	}
 	// Check if string is in the static array
 	else if (!match_str(chemistry_program, valid_program,
 						sizeof(valid_program))) {
-		return error_fail_message("Invalid program\n");
+		return error_fail_message("Invalid program argument\n");
 	}
 
 	// Check if the file is valid by accessing
 	FILE *file = fopen(file_path, "r");
 	if (file == NULL) {
 		if (errno == ENOENT) {
-			printf("Error: File \"%s\" does not exist.\n", file_path);
+			printf("File \"%s\" does not exist.\n", file_path);
 		} else if (errno == EACCES) {
-			printf("Error: Permission denied for file \"%s\".\n", file_path);
+			printf("File permission denied for \"%s\".\n", file_path);
 		} else {
-			printf("Error: cannot open file");
+			printf("File cannot be opened");
 		}
 		return FAILURE;
 	}
@@ -128,11 +125,11 @@ int main(int argc, char *argv[]) {
 		calc_memory = true;
 		calc_type = convert_to_lower(argv[3]);
 		if (!is_valid_length(calc_type, 2, 4)) {
-			return error_fail_message("Invalid calc type\n");
+			return error_fail_message("Invalid calc type argument\n");
 		}
 		// Check if the argument is in the static array
 		else if (!match_str(calc_type, valid_calc, sizeof(valid_calc))) {
-			return error_fail_message("Invalid calc type\n");
+			return error_fail_message("Invalid calc type argument\n");
 		}
 	}
 
@@ -147,13 +144,10 @@ int main(int argc, char *argv[]) {
 		// Call the appropriate function based on command line arguments
 		snprintf(lua_func, sizeof(lua_func), "%s_to_xyz", chemistry_program);
 		exec_lua_function(L, PATH_TO_OUTPUT, lua_func, file_path, calc_type);
-
-		//		printf("Generate output file\n");
-		//		printf("Input success: \"%s\"\n", file_path);
 	}
 	// -i: Check for file extension and if -s was specified
 	if (option_input) {
-		// Check if .xyz file, (temporary). Should be called if option_i = true
+		// Check if the file extension is .xyz
 		if (!check_file_extension(file_path, ".xyz")) {
 			return error_fail_message(
 				"The file \"%s\" does not have a .xyz extension\n", file_path);
@@ -163,15 +157,10 @@ int main(int argc, char *argv[]) {
 			// Determine and call the appropriate lua function
 			snprintf(lua_func, sizeof(lua_func), "%s_sh", chemistry_program);
 			exec_lua_function(L, PATH_TO_SH, lua_func, file_path, calc_type);
-			// Add in error handling for exec_lua_function
 		}
 		// Call the appropriate function based on command line arguments
 		snprintf(lua_func, sizeof(lua_func), "xyz_to_%s", chemistry_program);
 		exec_lua_function(L, PATH_TO_INPUT, lua_func, file_path, calc_type);
-		// Add in error handling
-
-		// printf("Generate input file\n");
-		// printf("Input success: \"%s\"\n", file_path);
 	}
 
 	// Free memory of option, chemistry_program, calc_type and Lua
@@ -182,17 +171,19 @@ int main(int argc, char *argv[]) {
 	}
 	lua_close(L);
 
-	// Signal completion
-	printf("Success! XtI\n");
+	// Success messages are printed from Lua
 	return SUCCESS;
 }
 
 // Fail out gracefully and give help message
 int error_fail_message(const char *message, ...) {
+	printf("Error: ");
+
 	va_list args;
 	va_start(args, message);
 	vprintf(message, args);
 	va_end(args);
 	help_prompt();
+
 	return FAILURE;
 }

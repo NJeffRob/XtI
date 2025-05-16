@@ -34,9 +34,3 @@ void exec_lua_function(lua_State *L, const char *script, const char *func_name,
 	}
 }
 
-// Deprecated
-// File to pass a variable into a .lua file
-void pass_argument_lua(lua_State *L, const char *str, const char *global_var) {
-	lua_pushstring(L, str);
-	lua_setglobal(L, global_var);
-}
