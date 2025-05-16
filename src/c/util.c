@@ -1,11 +1,17 @@
 #include "../../include/util.h"
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
 
 void help_prompt(void) {
 	printf("Usage: xti -[options] [program] [job] [file...] \n"
 		   "Try 'xti -h' for help on getting started. \n");
+}
+
+char *iso_strdup(const char *s) {
+	size_t len = strlen(s) + 1;
+	char *dup = malloc(len);
+	if (dup) {
+		memcpy(dup, s, len);
+	}
+	return dup;
 }
 
 char *convert_to_lower(char *str) {
@@ -14,7 +20,7 @@ char *convert_to_lower(char *str) {
 		return NULL;
 	}
 	// Duplicate the string (strdup uses malloc)
-	char *copy = strdup(str);
+	char *copy = iso_strdup(str);
 	if (!copy) {
 		return NULL;
 	}

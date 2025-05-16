@@ -1,7 +1,10 @@
 #ifndef LUA_UTIL_H
 #define LUA_UTIL_H
 
+#include <lauxlib.h>
 #include <lua.h>
+#include <lualib.h>
+#include <stdio.h>
 
 void exec_lua_script(lua_State *L, const char *script);
 void exec_lua_function(lua_State *L, const char *script, const char *func_name,

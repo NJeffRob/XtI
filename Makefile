@@ -1,5 +1,6 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -I./include
+CSTD=c99
+CFLAGS=-Wall -Wextra -I./include -std=$(CSTD)
 LDFLAGS=-llua5.4 -lm
 
 # Directories

@@ -1,5 +1,4 @@
 #include "../../include/option_handler.h"
-#include <stdbool.h>
 
 bool is_valid_option(char c) {
 	// Check if the option flag is -i for input, or -o for output

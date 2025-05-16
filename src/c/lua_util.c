@@ -1,8 +1,4 @@
 #include "../../include/lua_util.h"
-#include <lauxlib.h>
-#include <lua.h>
-#include <lualib.h>
-#include <stdio.h>
 
 // Function to execute lua script
 void exec_lua_script(lua_State *L, const char *script) {
