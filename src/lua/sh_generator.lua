@@ -27,7 +27,7 @@ local function sh_generator (user_mail, account, ntasks, nodes, cpus_per_task, m
 
     sh:write(
         "#!/bin/bash", "\n",
-        "#SBATCH --job-name=" .. io_name, "\n",
+        "#SBATCH --job-name=" .. io_name .. "-" .. calc_type, "\n",
         "#SBATCH --account=" .. account, "\n",
         "#SBATCH --output=%j-" .. calc_type .. ".log", "\n",
         "#SBATCH --error=%j-" .. calc_type .. ".err", "\n",
