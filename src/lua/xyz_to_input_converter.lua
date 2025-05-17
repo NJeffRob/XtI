@@ -76,7 +76,7 @@ end
 -- append the xyz coordinates to the appropriate input files
 
 -- ORCA: works!
-function xyz_to_orca(io_name, calc_type, functional, basis_set, sp_basis_set, dispersion, ntasks, mem_per_cpu, charge, mult)
+function xyz_to_orca(io_name, calc_type)
     xyz_extractor(io_name)
 
     local orca_inp_file = assert(io.open(io_name .. "-" .. calc_type .. ".inp", "w"))
@@ -124,7 +124,7 @@ function xyz_to_orca(io_name, calc_type, functional, basis_set, sp_basis_set, di
 end
 
 -- Gaussian: works!
-function xyz_to_gaussian(io_name, calc_type, functional, basis_set, sp_basis_set, dispersion, ntasks, mem_per_cpu, charge, mult)
+function xyz_to_gaussian(io_name, calc_type)
     xyz_extractor(io_name)
 
     local gaussian_inp_file = assert(io.open(io_name .. "-" .. calc_type .. ".gjf", "w"))
@@ -167,7 +167,7 @@ function xyz_to_gaussian(io_name, calc_type, functional, basis_set, sp_basis_set
 end
 
 -- fhi-aims: works!
-function xyz_to_fhiaims(io_name, calc_type, functional, relativistic, relax_geometry, spin)
+function xyz_to_fhiaims(io_name, calc_type)
     xyz_extractor(io_name)
 
     -- aims requires a geometry.in and a control.in file (names have to be this)
@@ -207,7 +207,7 @@ function xyz_to_fhiaims(io_name, calc_type, functional, relativistic, relax_geom
 end
 
 -- gamess: works!
-function xyz_to_gamess(io_name, calc_type, charge, mult)
+function xyz_to_gamess(io_name, calc_type)
     xyz_extractor(io_name)
     
     local gamess_inp_file = assert(io.open(io_name .. "-" .. calc_type .. ".inp", "w"))
@@ -239,7 +239,9 @@ function xyz_to_gamess(io_name, calc_type, charge, mult)
 
     -- gamess requires atomic numbers; this inserts them as well as appends the coords
     for line in coordinates:lines() do
-        local atom_symbol = string.sub(line, 1, 1)
+        local atom_symbol = string.sub(line, 1, 3)
+
+        atom_symbol = atom_symbol:gsub("%s+", "") -- removes any blank spaces
 
         for k, v in ipairs(periodic_table) do
             if v == atom_symbol then
