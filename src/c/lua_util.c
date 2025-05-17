@@ -31,6 +31,6 @@ void exec_lua_function(lua_State *L, const char *script, const char *func_name,
 		fprintf(stderr, "Error running Lua function '%s': %s\n", func_name,
 				lua_tostring(L, -1));
 		lua_pop(L, 1);
+		return;
 	}
 }
-

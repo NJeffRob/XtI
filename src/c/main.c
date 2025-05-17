@@ -135,8 +135,9 @@ int main(int argc, char *argv[]) {
 
 	// -o: Check for file extension
 	if (option_output) {
-		// Valid file extensions for -o
-		if (!check_file_extension(file_path, ".log")) {
+		// Valid file extensions for -o (.out or .log)
+		if (!check_file_extension(file_path, ".log") &&
+			!check_file_extension(file_path, ".out")) {
 			return error_fail_message(
 				"The file \"%s\" does not have a valid extension for outputs\n",
 				file_path);
@@ -158,9 +159,13 @@ int main(int argc, char *argv[]) {
 			snprintf(lua_func, sizeof(lua_func), "%s_sh", chemistry_program);
 			exec_lua_function(L, PATH_TO_SH, lua_func, file_path, calc_type);
 		}
+		// Remove the file extension from file_path
+		char *no_ext = remove_file_extension(file_path);
 		// Call the appropriate function based on command line arguments
 		snprintf(lua_func, sizeof(lua_func), "xyz_to_%s", chemistry_program);
-		exec_lua_function(L, PATH_TO_INPUT, lua_func, file_path, calc_type);
+		exec_lua_function(L, PATH_TO_INPUT, lua_func, no_ext, calc_type);
+		// Free no_ext
+		free(no_ext);
 	}
 
 	// Free memory of option, chemistry_program, calc_type and Lua
