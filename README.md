@@ -1,5 +1,5 @@
 # XYZ to Input (XtI)
-XtI is a command line too to generate input files from XYZ coordinate files for several computational chemistry programs. As of May 2025, the following electronic structure programs are supported:
+XtI is a command line tool to generate input files from XYZ coordinate files for several computational chemistry programs. As of May 2025, the following electronic structure programs are supported:
 
 - ORCA
 - Gaussian
