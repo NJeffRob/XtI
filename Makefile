@@ -1,7 +1,7 @@
 CC=gcc
 CSTD=c99
 CFLAGS=-Wall -Wextra -I./include -std=$(CSTD)
-LDFLAGS=-llua5.4 -lm
+LDFLAGS=-llua -lm
 
 # Directories
 SRC_DIR = src/c
