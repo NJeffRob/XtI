@@ -1,4 +1,5 @@
 #include "../include/file_handler.h"
+#include "../include/util.h"
 #include <check.h>
 
 START_TEST(test_pass_xyz) {
