@@ -39,5 +39,5 @@ else
     echo "XTI_LUA_PATH already set in $SHELL_CONFIG"
 fi
 
-echo "Installation complete. Run `xti -h` for help"
+echo "Installation complete. Run 'xti -h' for help"
 
