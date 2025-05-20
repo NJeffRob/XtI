@@ -24,10 +24,9 @@ DFT has become a crucial tool for calculating reaction pathways, predicting spec
 
 
 ### Dependencies
-XtI was written in Lua 5.4.7 and C... Due to the use of `<const>` in the Lua code, Lua 5.4 is required as a minimum.
+XtI was written in Lua 5.4.7 and C99. Due to the use of `<const>` in the Lua code, Lua 5.4 is required as a minimum.
 
-_Lawrence please add C specific things here_
-
+GCC is used in the Makefile to compile the C programs. To have compatibility with C99, a GCC version of >= 4.5 is required.
 
 ### Installation
 It is recommended that XtI be compiled and added to the users path:
@@ -118,7 +117,7 @@ output: water.xyz
 3. Generate a submission script (.sh) for FHI-AIMS for a file called water:
 
 ```
-input: xti -s fhiaims water
+input: xti -is fhiaims water
 output: water.sh
 ```
 
