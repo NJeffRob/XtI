@@ -1,5 +1,15 @@
 #include "../../include/lua_util.h"
 
+// Determine the path to the lua files
+void build_lua_path(char *dest, const char *script) {
+	const char *base_path = getenv("XTI_LUA_PATH");
+	if (!base_path) {
+		fprintf(stderr, "XTI_LUA_PATH not set in shell config");
+		exit(EXIT_FAILURE);
+	}
+	snprintf(dest, 128, "%s/%s", base_path, script);
+}
+
 // Function to execute lua script
 void exec_lua_script(lua_State *L, const char *script) {
 	if (luaL_dofile(L, script) != LUA_OK) {

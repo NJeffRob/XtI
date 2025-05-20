@@ -15,11 +15,6 @@
 #define SUCCESS 0
 #define FAILURE 1
 
-#define PATH_TO_HELP   "src/lua/help.lua"
-#define PATH_TO_INPUT  "src/lua/xyz_to_input_converter.lua"
-#define PATH_TO_OUTPUT "src/lua/output_to_xyz_converter.lua"
-#define PATH_TO_SH	   "src/lua/sh_generator.lua"
-
 #define DEFAULT_CALC_TYPE "sp"
 
 const char *valid_program[] = {"gamess", "orca", "gaussian", "fhiaims"};
@@ -28,6 +23,16 @@ const char *valid_calc[] = {"opt", "freq", "sp"};
 int error_fail_message(const char *message, ...);
 
 int main(int argc, char *argv[]) {
+	// Define the path to the lua scripts
+	char path_to_help[128];
+	char path_to_input[128];
+	char path_to_output[128];
+	char path_to_sh[128];
+	build_lua_path(path_to_help, "help.lua");
+	build_lua_path(path_to_input, "xyz_to_input_converter.lua");
+	build_lua_path(path_to_output, "output_to_xyz_converter.lua");
+	build_lua_path(path_to_sh, "sh_generator.lua");
+
 	// Set argv constants
 	char *option = convert_to_lower(argv[1]);
 	char *chemistry_program = convert_to_lower(argv[2]);
@@ -45,7 +50,7 @@ int main(int argc, char *argv[]) {
 	}
 	if (strcmp(option, help) == SUCCESS) {
 		// Print the help message
-		exec_lua_script(L, PATH_TO_HELP);
+		exec_lua_script(L, path_to_help);
 		return SUCCESS;
 	}
 	// First character of the argument is '-'
@@ -144,7 +149,7 @@ int main(int argc, char *argv[]) {
 		}
 		// Call the appropriate function based on command line arguments
 		snprintf(lua_func, sizeof(lua_func), "%s_to_xyz", chemistry_program);
-		exec_lua_function(L, PATH_TO_OUTPUT, lua_func, file_path, calc_type);
+		exec_lua_function(L, path_to_output, lua_func, file_path, calc_type);
 	}
 	// -i: Check for file extension and if -s was specified
 	if (option_input) {
@@ -159,11 +164,11 @@ int main(int argc, char *argv[]) {
 		if (option_script) {
 			// Determine and call the appropriate lua function
 			snprintf(lua_func, sizeof(lua_func), "%s_sh", chemistry_program);
-			exec_lua_function(L, PATH_TO_SH, lua_func, no_ext, calc_type);
+			exec_lua_function(L, path_to_sh, lua_func, no_ext, calc_type);
 		}
 		// Call the appropriate function based on command line arguments
 		snprintf(lua_func, sizeof(lua_func), "xyz_to_%s", chemistry_program);
-		exec_lua_function(L, PATH_TO_INPUT, lua_func, no_ext, calc_type);
+		exec_lua_function(L, path_to_input, lua_func, no_ext, calc_type);
 		// Free no_ext
 		free(no_ext);
 	}
