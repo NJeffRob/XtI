@@ -1,0 +1,11 @@
+! PBE0 def2-SVP D3BJ printbasis
+! freq
+
+%pal
+  nprocs 1
+end
+
+%maxcore 750
+
+* xyz 0 1
+*

@@ -32,9 +32,9 @@ GCC is used in the Makefile to compile the C programs. To have compatibility wit
 
 ### Installation
 To install XtI, perform the following:
-1. Clone the XtI project from GitHub or download and unzip it in a relevant directory
-2. Type ```chmod +x install_xti.sh``` to turn it into an executable
-3. Type ```source ~/.bashrc``` to refresh your terminal
+1. Clone the XtI project from GitHub or download and unzip it in a relevant directory.
+2. Type ```chmod +x install_xti.sh``` to turn it into an executable.
+3. Type ```source ~/.bashrc``` to refresh your terminal.
 4. Type ```xti -h``` to ensure that the program has been installed correctly.
 
 Should you want to compile the program from scratch, the following distributions/architectures have been tested and work:
@@ -48,11 +48,11 @@ Should you want to compile the program from scratch, the following distributions
 
 
 ### Testing
-Integration tests on C input handling with the [Check](https://libcheck.github.io/check/).
+Unit and integration tests for the C files are written using the [Check](https://libcheck.github.io/check/) framework.
 
-Dependencies are check, and pkg-config, installed with `sudo apt install check pkg-config`
+The dependencies for the framework are check, and pkg-config, installed using `sudo apt install check pkg-config`.
 
-Run `make` and `make test`
+To run the tests, use `make` and `make test`.
 
 The file `scripts/generate_test.py` will automatically create the boilerplate for a C test and update the Makefile. The script can be ran with `python3 scripts/generate_test.py <test_name>.c`
 
