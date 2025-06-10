@@ -1,5 +1,5 @@
 # XYZ to Input (XtI)
-XtI is a command line tool to generate input files from XYZ coordinate files for several computational chemistry programs. As of May 2025, the following electronic structure programs are supported:
+XtI is a command line tool to generate input files from XYZ coordinate files for several computational chemistry programs. As of June 2025, the following electronic structure programs are supported:
 
 - ORCA
 - Gaussian
@@ -20,7 +20,9 @@ Please see [Contributing](#contributing) if you'd like to get involved.
 
 
 ### About
-DFT has become a crucial tool for calculating reaction pathways, predicting spectral properties, and analyzing molecular properties. Despite its prevalence, the manual process of generating input files for DFT calculations remains cumbersome and time-consuming. This leaves researchers to manage file conversions and submissions manually, wasting valuable time that could be spent on other tasks. To address this, we present XYZ to Input (XtI), a command-line tool designed to streamline the generation of input files for molecular DFT calculations. XtI is compatible with three major operating systems (Linux, MacOS, Windows) and emphasizes ease of use and portability. The program is readily compiled via a Makefile, and aims to reduce the time and effort spent on generating input files.
+DFT has become a crucial tool for calculating reaction pathways, predicting spectral properties, and analyzing molecular properties. Despite its prevalence, the manual process of generating input files for DFT calculations remains cumbersome and time-consuming. This leaves researchers to manage file conversions and submissions manually, wasting valuable time that could be spent on other tasks. To address this, we present XYZ to Input (XtI), a command-line tool designed to streamline the generation of input files for molecular DFT calculations. XtI is currently compatible on Linux (Ubuntu/Debian tested), with plans in the future to bring it to macOS and Windows. XtI emphasizes ease of use and portability, and can be installed with a simple shell script from a pre-compiled binary.
+
+**Note** It is also possible to compile the program from source via Makefile, but this has not been rigorously tested on all architectures. If you compile it on your own system, we'd love to hear from you!
 
 
 ### Dependencies
@@ -29,24 +31,20 @@ XtI was written in Lua 5.4.7 and C99. Due to the use of `<const>` in the Lua cod
 GCC is used in the Makefile to compile the C programs. To have compatibility with C99, a GCC version of >= 4.5 is required.
 
 ### Installation
-It is recommended that XtI be compiled and added to the users path:
+To install XtI, perform the following:
+1. Clone the XtI project from GitHub or download and unzip it in a relevant directory
+2. Type ```chmod +x install_xti.sh``` to turn it into an executable
+3. Type ```source ~/.bashrc``` to refresh your terminal
+4. Type ```xti -h``` to ensure that the program has been installed correctly.
 
-_We should test this as best as we can on linux; idk how the makefile works but if it relies on gcc we should note that in the dependencies_
+Should you want to compile the program from scratch, the following distributions/architectures have been tested and work:
+- AMD Ryzen 7, x86_64, (K)Ubuntu 24.04.2
+- Intel, x86-64 PopOS (Ubuntu 22.04)
 
-#### Linux
+##### Ubuntu
 1. Download XtI into a folder of your choosing. We recommend `~/.local/share/applications` or `~/.local/share/bin`. Note that you may have to create the latter depending on your distribution. 
 2. Run `make` to install XtI, and `make test` to ensure it's functioning properly.
-3. Once installed, add the following to your `~/.bashrc` file: `export PATH=$PATH:/path/to/xti`
-
-#### macOS
-1. Download XtI into a folder of your choosing.
-2. Run `make` to install XtI, and `make test` to ensure it's functioning properly.
-3. Once installed, add the following to your `/etc/paths` file: `/path/to/xti`
-
-#### Windows
-1. Download XtI into a folder of your choosing.
-2. Run `make` to install XtI, and `make test` to ensure it's functioning properly.
-3. Once installed, the following guide will be helpful to add it to your path: [Add to the PATH on Windows 10 and Windows 11](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/)
+3. Once compiled, perform the same general steps above to execute the ```install_xti.sh``` script.
 
 
 ### Testing
@@ -130,23 +128,11 @@ output: water-freq.gjf, water-freq.sh
 
 
 ### Contributing
-If you'd like to contribute to XtI, please feel free! If you're unsure how to contribute, the following are things that would be helpful:
+If you'd like to contribute to XtI, please feel free! We're  If you're unsure how to contribute, the following are things that would be helpful:
 
 1. Adding more electronic structure programs.
 2. Adding more input options for existing programs.
-3. If you use XtI and encounter a bug, please report it to us.
+3. Compilation testing for Windows and macOS executables
+4. If you use XtI and encounter a bug, please report it to us.
 
-
-# To dos
-## Lawrence
-- Get user input in the form of the following: xti -option program jobtype file
-- For the above: programs list can be found in the "Programs" struct in main.c; options list can be found in "help.lua"; jobtype can be found in the "Job_types" structure in main.c; and file should be a valid file
-- Once all user input is correctly checked, pass the argument to the relevant Lua function in either the sh, xyz_to_input, or output_to_xyz Lua files (I can help with implementing this; see: https://lucasklassmann.com/blog/2019-02-02-embedding-lua-in-c/ for a great guide)
-- *maybe*: customize the API to be more modular (this might be nightmarish, so don't worry about it til WAY later)
-- **When code is done**: create a makefile for easy compilation
-
-## Nick
-- Write a proper readme/better documentation in general
-- Finish writing the paper draft/get supervisor to approve and submit it for publication
-
-
+To help with contributing, the `test/` and `scripts/` directories contain helpful testing tools.
