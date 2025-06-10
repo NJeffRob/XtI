@@ -39,7 +39,7 @@ To install XtI, perform the following:
 
 Should you want to compile the program from scratch, the following distributions/architectures have been tested and work:
 - AMD Ryzen 7, x86_64, (K)Ubuntu 24.04.2
-- Intel, x86-64 PopOS (Ubuntu 22.04)
+- Intel Haswell, x86-64 PopOS (Ubuntu 22.04)
 
 ##### Ubuntu
 1. Download XtI into a folder of your choosing. We recommend `~/.local/share/applications` or `~/.local/share/bin`. Note that you may have to create the latter depending on your distribution. 
@@ -128,11 +128,11 @@ output: water-freq.gjf, water-freq.sh
 
 
 ### Contributing
-If you'd like to contribute to XtI, please feel free! We're  If you're unsure how to contribute, the following are things that would be helpful:
+If you'd like to contribute to XtI, please feel free! If you're unsure how to contribute, the following are things that would be helpful:
 
 1. Adding more electronic structure programs.
 2. Adding more input options for existing programs.
-3. Compilation testing for Windows and macOS executables
+3. Compilation testing for Windows and macOS executables.
 4. If you use XtI and encounter a bug, please report it to us.
 
 To help with contributing, the `test/` and `scripts/` directories contain helpful testing tools.
